@@ -1,8 +1,6 @@
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
-import { auth } from "../Firebase";
-import { useAuthState } from "react-firebase-hooks/auth";
-import firebase from "firebase/app";
+import { useUser, useAuth } from "../context";
 
 const Card = styled.div`
   display: flex;
@@ -12,12 +10,8 @@ const UserDeets = styled.div`
 `;
 
 const UserCard = () => {
-  const [user] = useAuthState(auth);
-
-  const signInWithGoogle = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider);
-  };
+  const { login, logout } = useAuth();
+  const { user } = useUser();
 
   return user ? (
     <Card>
@@ -26,13 +20,11 @@ const UserCard = () => {
         <p>Username</p>
         <p>@userId</p>
       </UserDeets>
-      <button onClick={() => auth.currentUser && auth.signOut()}>
-        Sign Out
-      </button>
+      <button onClick={() => logout()}>Sign Out</button>
     </Card>
   ) : (
     <Card>
-      <button onClick={signInWithGoogle}>Sign in with Google</button>
+      <button onClick={() => login()}>Sign in with Google</button>
     </Card>
   );
 };

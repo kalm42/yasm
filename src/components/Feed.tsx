@@ -2,7 +2,7 @@ import { firestore } from "../Firebase";
 import { useCollectionData } from "react-firebase-hooks/firestore";
 import Post from "./Post";
 
-interface Post {
+interface PostInterface {
   profileImage?: string;
   authorName: string;
   authorId: string;
@@ -17,7 +17,7 @@ interface Post {
 const Feed = () => {
   const postsRef = firestore.collection("posts");
   const query = postsRef.orderBy("createdAt").limit(25);
-  const [posts] = useCollectionData<Post>(query, { idField: "id" });
+  const [posts] = useCollectionData<PostInterface>(query, { idField: "id" });
 
   if (!posts?.length) return null;
 

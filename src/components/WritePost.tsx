@@ -24,7 +24,7 @@ const WritePost = () => {
       });
       setPost("");
     } catch (error) {
-      console.log(`WritePost Error: ${error.message}`);
+      console.warn(`WritePost Error: ${error.message}`);
     }
   };
 

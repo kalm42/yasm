@@ -8,7 +8,7 @@ import admin from "./firebase-admin";
  * Sends the new user to firestore for saving
  * @param {Object} user The new user object from buildUser
  */
-export default async function createNewUser(user: UserRecord) {
+export default async function createNewUser(user: UserRecord): Promise<void> {
   const usersRef = admin.firestore().collection("users");
   const newUser: User = {
     id: "",
@@ -19,7 +19,7 @@ export default async function createNewUser(user: UserRecord) {
   };
 
   try {
-    await usersRef.add(newUser);
+    await usersRef.doc(user.uid).set(newUser);
   } catch (error) {
     console.log(error);
   }
