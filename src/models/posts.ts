@@ -6,3 +6,12 @@ export interface Post {
   profileImage?: string;
   text: string;
 }
+
+// Duplicated in /functions/src/models.ts
+export interface User {
+  id: string;
+  name: string;
+  profileImage: string;
+  bio: string;
+  links: string[];
+}

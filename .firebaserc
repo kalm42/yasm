@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "staging": "yasm-a0f22",
+    "default": "yasm-a0f22"
+  }
+}
