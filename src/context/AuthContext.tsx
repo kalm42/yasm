@@ -19,17 +19,20 @@ function AuthProvider(props: Props) {
   const [user, setUser] = useState<User | null>(null);
   firebase.auth().onAuthStateChanged((googleUser) => {
     if (googleUser) {
-      // logged in
       firestore
         .collection("users")
         .doc(googleUser.uid)
-        .get()
-        .then((fireUser) => fireUser.data())
-        .then((fireUser) => setUser(fireUser as User));
+        .onSnapshot(
+          (doc) => {
+            const fireUser = doc.data();
+            setUser(fireUser as User);
+          },
+          (error) => {
+            console.error(error);
+          }
+        );
     } else if (user) {
       setUser(null);
-    } else {
-      // no current user, and user state is falsy
     }
   });
 
