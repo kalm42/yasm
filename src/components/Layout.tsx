@@ -44,7 +44,7 @@ const Layout = (props: Props) => {
               <Link to="/bookmarks">Bookmarks</Link>
             </li>
             <li>
-              <Link to="/profile">Profile</Link>
+              <Link to={`/kalm42`}>Profile</Link>
             </li>
           </ul>
         </nav>

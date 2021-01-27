@@ -15,3 +15,7 @@ export interface User {
   bio: string;
   links: string[];
 }
+
+export interface ExtendedUser extends User {
+  uid: string;
+}

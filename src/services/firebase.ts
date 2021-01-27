@@ -1,7 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
-import { User } from "../models/posts";
+import { ExtendedUser } from "../models/posts";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD98rn8YdEp3956xBCdRCsqBxxF6GyvD38",
@@ -22,9 +22,6 @@ export function updateDocument(path: string, value: object) {
   return firestore.doc(path).set(value, { merge: true });
 }
 
-interface ExtendedUser extends User {
-  uid: string;
-}
 export function getUserWithId(id: string): Promise<ExtendedUser | null> {
   return firestore
     .collection("users")
@@ -39,4 +36,27 @@ export function getUserWithId(id: string): Promise<ExtendedUser | null> {
 
       return document ? (document as ExtendedUser) : null;
     });
+}
+
+export function followUser(follower: firebase.User, followed: ExtendedUser) {
+  const path = `follows/${follower.uid}_${followed.uid}`;
+
+  return firestore.doc(path).set({
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    follower: follower.uid,
+    followed: followed.uid,
+  });
+}
+
+export function unfollowUser(follower: firebase.User, followed: ExtendedUser) {
+  const path = `follows/${follower.uid}_${followed.uid}`;
+  return firestore.doc(path).delete();
+}
+
+export function doesFollow(follower: firebase.User, followed: ExtendedUser) {
+  const path = `follows/${follower.uid}_${followed.uid}`;
+  return firestore
+    .doc(path)
+    .get()
+    .then((doc) => doc.exists);
 }

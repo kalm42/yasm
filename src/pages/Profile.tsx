@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import { getUserWithId } from "../services/firebase";
-import { User } from "../models/posts";
+import {
+  doesFollow,
+  followUser,
+  getUserWithId,
+  unfollowUser,
+} from "../services/firebase";
+import { ExtendedUser } from "../models/posts";
 import Biography from "../components/Biography";
 import UserId from "../components/UserId";
 import Links from "../components/Links";
@@ -20,22 +25,45 @@ const OneFourth = styled.div`
 const Profile = () => {
   const params = useParams<{ id: string }>();
   const { user } = useUser();
-  const [profile, setProfile] = useState<User | null>(null);
+  const [profile, setProfile] = useState<ExtendedUser | null>(null);
   const [isMe, setIsMe] = useState(false);
+  const [followsUser, setFollowsUser] = useState(false);
+
+  const follow = () => {
+    if (!user || !profile) return;
+    followUser(user, profile)
+      .then(() => setFollowsUser(true))
+      .catch(() => console.warn("Follow failed"));
+  };
+  const unfollow = () => {
+    if (!user || !profile) return;
+    unfollowUser(user, profile)
+      .then(() => setFollowsUser(false))
+      .catch(() => console.warn("Unfollow failed"));
+  };
 
   // Fetch the user from firestore based on url id
   useEffect(() => {
-    (async function () {
-      const profile = await getUserWithId(params.id);
-      setProfile(profile);
-      if (!profile) return;
+    const getUser = async () => {
+      const p = await getUserWithId(params.id);
+      setProfile(p);
+      if (!p) return;
       // if the document's id matches the currently logged in user then they're
       // the currently logged in user and more UI can be displayed
-      if (profile.uid === user?.uid) {
+      if (p.uid === user?.uid) {
         setIsMe(true);
       }
-    })();
+    };
+    getUser();
   }, [user, params.id]);
+
+  useEffect(() => {
+    const doIFollow = async () => {
+      if (!user || !profile) return;
+      setFollowsUser(await doesFollow(user, profile));
+    };
+    doIFollow();
+  }, [user, profile]);
 
   return (
     <div>
@@ -48,7 +76,13 @@ const Profile = () => {
           {isMe && <button>edit</button>}
         </div>
         <UserId uid={profile?.id || ""} isMe={isMe} />
-        <button>follow</button>
+        {user &&
+          profile &&
+          (followsUser ? (
+            <button onClick={unfollow}>unfollow</button>
+          ) : (
+            <button onClick={follow}>follow</button>
+          ))}
       </Half>
       <OneFourth>
         <Links links={profile?.links || []} isMe={isMe} />
