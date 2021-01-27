@@ -1,5 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import { getUserWithId } from "../services/firebase";
+import { User } from "../models/posts";
+import Biography from "../components/Biography";
+import UserId from "../components/UserId";
+import Links from "../components/Links";
+import { useParams } from "react-router-dom";
 import { useUser } from "../context";
 
 const Half = styled.div`
@@ -12,39 +18,41 @@ const OneFourth = styled.div`
 `;
 
 const Profile = () => {
+  const params = useParams<{ id: string }>();
   const { user } = useUser();
+  const [profile, setProfile] = useState<User | null>(null);
+  const [isMe, setIsMe] = useState(false);
+
+  // Fetch the user from firestore based on url id
+  useEffect(() => {
+    (async function () {
+      const profile = await getUserWithId(params.id);
+      setProfile(profile);
+      if (!profile) return;
+      // if the document's id matches the currently logged in user then they're
+      // the currently logged in user and more UI can be displayed
+      if (profile.uid === user?.uid) {
+        setIsMe(true);
+      }
+    })();
+  }, [user, params.id]);
+
   return (
     <div>
-      <h1>Profile Page</h1>
       <Half>
         <div>
           <h2>Profile Image</h2>
-          {!!user?.profileImage && (
-            <img src={user?.profileImage} alt={user.name} />
+          {!!profile?.profileImage && (
+            <img src={profile?.profileImage} alt={profile.name} />
           )}
-          <button>edit</button>
+          {isMe && <button>edit</button>}
         </div>
-        <div>
-          <h2>User Name</h2>
-          <p>{user?.id}</p>
-          <button>edit</button>
-        </div>
+        <UserId uid={profile?.id || ""} isMe={isMe} />
+        <button>follow</button>
       </Half>
       <OneFourth>
-        <div>
-          <h2>Links</h2>
-          <ul>
-            {user?.links.map((link, index) => (
-              <li key={index}>{link}</li>
-            ))}
-          </ul>
-          <button>edit</button>
-        </div>
-        <div>
-          <h2>Biography</h2>
-          <p>{user?.bio}</p>
-          <button>edit</button>
-        </div>
+        <Links links={profile?.links || []} isMe={isMe} />
+        <Biography bio={profile?.bio || ""} isMe={isMe} />
       </OneFourth>
       <p>
         This page will show all of a user's posts, their profile image, bio

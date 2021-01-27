@@ -1,12 +1,11 @@
 import { createContext, useContext, useState } from "react";
 import firebase from "firebase/app";
-import { auth, firestore } from "../Firebase";
-import { User } from "../models/posts";
+import { auth } from "../services/firebase";
 
 interface AuthContextInterface {
   login: Function;
   logout: Function;
-  user: User | null;
+  user: firebase.User | null;
 }
 const AuthContext = createContext<AuthContextInterface>({
   login: () => false,
@@ -16,21 +15,10 @@ const AuthContext = createContext<AuthContextInterface>({
 
 interface Props {}
 function AuthProvider(props: Props) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<firebase.User | null>(null);
   firebase.auth().onAuthStateChanged((googleUser) => {
     if (googleUser) {
-      firestore
-        .collection("users")
-        .doc(googleUser.uid)
-        .onSnapshot(
-          (doc) => {
-            const fireUser = doc.data();
-            setUser(fireUser as User);
-          },
-          (error) => {
-            console.error(error);
-          }
-        );
+      setUser(googleUser);
     } else if (user) {
       setUser(null);
     }

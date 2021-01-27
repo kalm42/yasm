@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import firebase from "firebase/app";
-import { auth, firestore } from "../Firebase";
+import { auth, firestore } from "../services/firebase";
 
 const WritePost = () => {
   const [post, setPost] = useState("");
