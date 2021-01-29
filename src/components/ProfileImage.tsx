@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { Url } from "url";
 import portrait from "../assets/portrait.jpg";
 
 const Image = styled.img`
@@ -6,8 +7,17 @@ const Image = styled.img`
   clip-path: circle(calc(4vmin) at center);
 `;
 
-const ProfileImage = () => {
-  return <Image src={portrait} alt="User id" />;
+interface Props {
+  url?: string;
+  userId?: string;
+}
+const ProfileImage = (props: Props) => {
+  const { url, userId } = props;
+  let img = url;
+  if (!url) {
+    img = portrait;
+  }
+  return <Image src={img} alt={userId ? `@${userId}` : `error`} />;
 };
 
 export default ProfileImage;
