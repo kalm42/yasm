@@ -1,69 +1,57 @@
 import { firestore } from "../services/firebase";
-import { useCollectionData } from "react-firebase-hooks/firestore";
 import Post from "./Post";
 import { useUser } from "../context";
 import { useEffect, useState } from "react";
-
-interface PostInterface {
-  profileImage?: string;
-  authorName: string;
-  authorId: string;
-  text: string;
-  createdAt: {
-    seconds: number;
-    nanoseconds: number;
-  };
-  id: string;
-}
+import { Post as PostType } from "../models/posts";
 
 const Feed = () => {
   const { user } = useUser();
   const [followList, setFollowList] = useState<string[]>([]);
-  const [posts, setPosts] = useState<PostInterface[]>([]);
-  // get users I follow
-  // get posts those users have made
+  const [posts, setPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
     const getFollowed = async () => {
       if (!user) return;
       const followsRef = firestore.collection("follows");
-      const query = await followsRef
+      followsRef
         .where("follower", "==", user?.uid)
-        .get()
-        .then((querySnapshot) => {
+        .onSnapshot((querySnapshot) => {
           let follows: string[] = [];
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             follows.push(data.followed);
           });
-          return follows;
+          // You want to see your own posts.
+          follows.push(user.uid);
+          setFollowList(follows);
         });
-      setFollowList(query);
     };
     getFollowed();
   }, [user]);
 
   useEffect(() => {
-    // get posts from those users
+    let unsubscribe: (() => void) | null = null;
     const getPosts = async () => {
       if (!followList.length) return;
-      console.log(followList);
       const postsRef = firestore.collection("posts");
       const query = postsRef
         .where("authorId", "in", followList)
         .orderBy("createdAt", "desc")
         .limit(25);
-      query.get().then((querySnapshot) => {
-        const p: PostInterface[] = [];
+      unsubscribe = query.onSnapshot((querySnapshot) => {
+        const p: PostType[] = [];
         querySnapshot.forEach((doc) => {
           const q = doc.data();
           q.id = doc.id;
-          p.push(q as PostInterface);
+          p.push(q as PostType);
         });
         setPosts(p);
       });
     };
     getPosts();
+    return () => {
+      unsubscribe && unsubscribe();
+    };
   }, [followList]);
 
   return (
