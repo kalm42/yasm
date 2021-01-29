@@ -22,6 +22,19 @@ export function updateDocument(path: string, value: object) {
   return firestore.doc(path).set(value, { merge: true });
 }
 
+export function getUserWithUID(uid: string): Promise<ExtendedUser | null> {
+  return firestore
+    .doc(`users/${uid}`)
+    .get()
+    .then((doc) => {
+      const user = doc.data() || null;
+      if (user) {
+        user.uid = doc.id;
+      }
+      return user as ExtendedUser;
+    });
+}
+
 export function getUserWithId(id: string): Promise<ExtendedUser | null> {
   return firestore
     .collection("users")

@@ -1,6 +1,9 @@
 import styled from "styled-components";
 import ProfileImage from "./ProfileImage";
 import { useUser, useAuth } from "../context";
+import { getUserWithUID } from "../services/firebase";
+import { useEffect, useState } from "react";
+import { ExtendedUser } from "../models/posts";
 
 const Card = styled.div`
   display: flex;
@@ -12,13 +15,22 @@ const UserDeets = styled.div`
 const UserCard = () => {
   const { login, logout } = useAuth();
   const { user } = useUser();
+  const [fireUser, setFireUser] = useState<ExtendedUser | null>(null);
+
+  useEffect(() => {
+    const getUser = async () => {
+      if (!user) return;
+      setFireUser(await getUserWithUID(user.uid));
+    };
+    getUser();
+  }, [user]);
 
   return user ? (
     <Card>
-      <ProfileImage />
+      <ProfileImage url={fireUser?.profileImage} userId={fireUser?.id} />
       <UserDeets>
-        <p>Username</p>
-        <p>@userId</p>
+        <p>{fireUser?.name}</p>
+        <p>@{fireUser?.id}</p>
       </UserDeets>
       <button onClick={() => logout()}>Sign Out</button>
     </Card>

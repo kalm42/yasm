@@ -1,10 +1,13 @@
 export interface Post {
   id: string;
+  authorAt: string;
   authorId: string;
   authorName: string;
   createdAt: { seconds: number; nanoseconds: number };
-  profileImage?: string;
+  photoURL?: string;
   text: string;
+  comments?: number;
+  score: number;
 }
 
 // Duplicated in /functions/src/models.ts
