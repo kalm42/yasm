@@ -1,7 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
-import { UserType } from "../models";
+import { CommentType, UserType } from "../models";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD98rn8YdEp3956xBCdRCsqBxxF6GyvD38",
@@ -17,6 +17,10 @@ firebase.initializeApp(FIREBASE_CONFIG);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
+
+export function getServerTimestamp() {
+  return firebase.firestore.FieldValue.serverTimestamp();
+}
 
 export function updateDocument(path: string, value: object) {
   return firestore.doc(path).set(value, { merge: true });
@@ -55,7 +59,7 @@ export function followUser(follower: firebase.User, followed: UserType) {
   const path = `follows/${follower.uid}_${followed.uid}`;
 
   return firestore.doc(path).set({
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    createdAt: getServerTimestamp(),
     follower: follower.uid,
     followed: followed.uid,
   });
@@ -72,4 +76,14 @@ export function doesFollow(follower: firebase.User, followed: UserType) {
     .doc(path)
     .get()
     .then((doc) => doc.exists);
+}
+
+type CollectionReference = firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
+
+export function writeComment(
+  collectionRef: CollectionReference,
+  comment: CommentType,
+  postId: string
+) {
+  collectionRef.doc(postId).collection("comments").add(comment);
 }

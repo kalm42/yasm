@@ -2,8 +2,9 @@ import ProfileImage from "./ProfileImage";
 import firebase from "firebase/app";
 import { PostType } from "../models";
 import styled from "styled-components";
-import { firestore } from "../services/firebase";
+import { firestore, getServerTimestamp } from "../services/firebase";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 const Wrapper = styled.div`
   display: grid;
@@ -89,6 +90,7 @@ const Post = (props: PostType) => {
       .doc(`posts/${id}`)
       .set({ comments: comments ? comments + 1 : 1 }, { merge: true });
     firestore.collection("posts").doc(id).collection("comments").add({
+      createdAt: getServerTimestamp(),
       test: comment,
     });
     setIsCommenting(false);
@@ -143,6 +145,9 @@ const Post = (props: PostType) => {
           <p>@{authorAt}</p>
         </Author>
         <div>{text}</div>
+        <div>
+          <Link to={`/post/${id}`}>View post</Link>
+        </div>
         <ToolBar>
           <Tool>
             <button onClick={thumbsUp} disabled={interactions !== undefined}>
