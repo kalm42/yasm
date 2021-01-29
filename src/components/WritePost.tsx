@@ -2,11 +2,11 @@ import { FormEvent, useEffect, useState } from "react";
 import firebase from "firebase/app";
 import { firestore } from "../services/firebase";
 import { useUser } from "../context";
-import { ExtendedUser } from "../models/posts";
+import { UserType } from "../models";
 
 const WritePost = () => {
   const [post, setPost] = useState("");
-  const [author, setAuthor] = useState<ExtendedUser | null>(null);
+  const [author, setAuthor] = useState<UserType | null>(null);
   const { user } = useUser();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -37,7 +37,7 @@ const WritePost = () => {
       const p = u.data();
       if (p) {
         p.uid = u.id;
-        setAuthor(p as ExtendedUser);
+        setAuthor(p as UserType);
       }
     };
     getUser();

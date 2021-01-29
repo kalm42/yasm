@@ -1,6 +1,6 @@
 import ProfileImage from "./ProfileImage";
 import firebase from "firebase/app";
-import { Post as PostModel } from "../models/posts";
+import { PostType } from "../models";
 import styled from "styled-components";
 import { firestore } from "../services/firebase";
 import { useEffect, useState } from "react";
@@ -34,7 +34,7 @@ const Tool = styled.li`
   align-items: center;
 `;
 
-const Post = (props: PostModel) => {
+const Post = (props: PostType) => {
   const {
     authorName,
     authorAt,

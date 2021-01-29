@@ -3,7 +3,7 @@ import ProfileImage from "./ProfileImage";
 import { useUser, useAuth } from "../context";
 import { getUserWithUID } from "../services/firebase";
 import { useEffect, useState } from "react";
-import { ExtendedUser } from "../models/posts";
+import { UserType } from "../models";
 
 const Card = styled.div`
   display: flex;
@@ -15,7 +15,7 @@ const UserDeets = styled.div`
 const UserCard = () => {
   const { login, logout } = useAuth();
   const { user } = useUser();
-  const [fireUser, setFireUser] = useState<ExtendedUser | null>(null);
+  const [fireUser, setFireUser] = useState<UserType | null>(null);
 
   useEffect(() => {
     const getUser = async () => {

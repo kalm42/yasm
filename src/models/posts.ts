@@ -1,24 +1,11 @@
-export interface Post {
-  id: string;
-  authorAt: string;
-  authorId: string;
-  authorName: string;
+export default interface PostType {
+  id: string; // doc id MUST be added to object
+  authorAt: string; // the @ for the author
+  authorId: string; // the uid for the author
+  authorName: string; // duh
   createdAt: { seconds: number; nanoseconds: number };
-  photoURL?: string;
-  text: string;
-  comments?: number;
-  score: number;
-}
-
-// Duplicated in /functions/src/models.ts
-export interface User {
-  id: string;
-  name: string;
-  profileImage: string;
-  bio: string;
-  links: string[];
-}
-
-export interface ExtendedUser extends User {
-  uid: string;
+  photoURL?: string; // the google profile url
+  text: string; // duh
+  comments?: number; // count of comments on post
+  score: number; // sum of thumbs up and thumbs down
 }

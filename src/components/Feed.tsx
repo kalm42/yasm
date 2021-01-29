@@ -2,7 +2,7 @@ import { firestore } from "../services/firebase";
 import Post from "./Post";
 import { useUser } from "../context";
 import { useEffect, useState } from "react";
-import { Post as PostType } from "../models/posts";
+import { PostType } from "../models";
 
 const Feed = () => {
   const { user } = useUser();

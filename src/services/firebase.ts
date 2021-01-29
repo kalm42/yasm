@@ -1,7 +1,7 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 import "firebase/auth";
-import { ExtendedUser } from "../models/posts";
+import { UserType } from "../models";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD98rn8YdEp3956xBCdRCsqBxxF6GyvD38",
@@ -22,7 +22,7 @@ export function updateDocument(path: string, value: object) {
   return firestore.doc(path).set(value, { merge: true });
 }
 
-export function getUserWithUID(uid: string): Promise<ExtendedUser | null> {
+export function getUserWithUID(uid: string): Promise<UserType | null> {
   return firestore
     .doc(`users/${uid}`)
     .get()
@@ -31,11 +31,11 @@ export function getUserWithUID(uid: string): Promise<ExtendedUser | null> {
       if (user) {
         user.uid = doc.id;
       }
-      return user as ExtendedUser;
+      return user as UserType;
     });
 }
 
-export function getUserWithId(id: string): Promise<ExtendedUser | null> {
+export function getUserWithId(id: string): Promise<UserType | null> {
   return firestore
     .collection("users")
     .where("id", "==", id)
@@ -47,11 +47,11 @@ export function getUserWithId(id: string): Promise<ExtendedUser | null> {
         document.uid = doc.id;
       });
 
-      return document ? (document as ExtendedUser) : null;
+      return document ? (document as UserType) : null;
     });
 }
 
-export function followUser(follower: firebase.User, followed: ExtendedUser) {
+export function followUser(follower: firebase.User, followed: UserType) {
   const path = `follows/${follower.uid}_${followed.uid}`;
 
   return firestore.doc(path).set({
@@ -61,12 +61,12 @@ export function followUser(follower: firebase.User, followed: ExtendedUser) {
   });
 }
 
-export function unfollowUser(follower: firebase.User, followed: ExtendedUser) {
+export function unfollowUser(follower: firebase.User, followed: UserType) {
   const path = `follows/${follower.uid}_${followed.uid}`;
   return firestore.doc(path).delete();
 }
 
-export function doesFollow(follower: firebase.User, followed: ExtendedUser) {
+export function doesFollow(follower: firebase.User, followed: UserType) {
   const path = `follows/${follower.uid}_${followed.uid}`;
   return firestore
     .doc(path)

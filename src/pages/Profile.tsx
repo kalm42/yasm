@@ -6,7 +6,7 @@ import {
   getUserWithId,
   unfollowUser,
 } from "../services/firebase";
-import { ExtendedUser } from "../models/posts";
+import { UserType } from "../models";
 import Biography from "../components/Biography";
 import UserId from "../components/UserId";
 import Links from "../components/Links";
@@ -25,7 +25,7 @@ const OneFourth = styled.div`
 const Profile = () => {
   const params = useParams<{ id: string }>();
   const { user } = useUser();
-  const [profile, setProfile] = useState<ExtendedUser | null>(null);
+  const [profile, setProfile] = useState<UserType | null>(null);
   const [isMe, setIsMe] = useState(false);
   const [followsUser, setFollowsUser] = useState(false);
 

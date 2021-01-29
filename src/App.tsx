@@ -6,6 +6,7 @@ import Auth from "./pages/Auth";
 import Bookmarks from "./pages/Bookmarks";
 import Home from "./pages/Home";
 import Notifications from "./pages/Notifications";
+import Post from "./pages/Post";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 
@@ -27,6 +28,9 @@ function App() {
               </Route>
               <Route path="/settings">
                 <Settings />
+              </Route>
+              <Route path="/post/:id">
+                <Post />
               </Route>
               <Route path="/:id">
                 <Profile />
