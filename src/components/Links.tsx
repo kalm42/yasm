@@ -23,7 +23,7 @@ const Links = (props: Props) => {
     const newLinkList = [...dirtyLinks, link];
     console.log({ newLinkList, link, dirtyLinks });
     setDirtyLinks(newLinkList);
-    updateDocument(`users/${user.uid}`, { links: newLinkList });
+    updateDocument(`users/${user._id}`, { links: newLinkList });
     setLink("");
     setAdd(false);
   };
@@ -37,13 +37,13 @@ const Links = (props: Props) => {
       return link;
     });
     setDirtyLinks(newLinkList);
-    return updateDocument(`users/${user.uid}`, { links: newLinkList });
+    return updateDocument(`users/${user._id}`, { links: newLinkList });
   };
 
   const handleRemove = (linkToRemove: string) => {
     if (!user) return;
     const linkList = links.filter((link) => link !== linkToRemove);
-    updateDocument(`users/${user.uid}`, { links: linkList });
+    updateDocument(`users/${user._id}`, { links: linkList });
   };
 
   return (

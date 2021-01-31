@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {
   doesFollow,
   followUser,
-  getUserWithId,
+  getUserWithTheirAt,
   unfollowUser,
 } from "../services/firebase";
 import { UserType } from "../models";
@@ -42,28 +42,30 @@ const Profile = () => {
       .catch(() => console.warn("Unfollow failed"));
   };
 
-  // Fetch the user from firestore based on url id
+  // is the user me, or do I need to get the user data from external
   useEffect(() => {
-    const getUser = async () => {
-      const p = await getUserWithId(params.id);
-      setProfile(p);
-      if (!p) return;
-      // if the document's id matches the currently logged in user then they're
-      // the currently logged in user and more UI can be displayed
-      if (p.uid === user?.uid) {
+    const getProfile = async () => {
+      console.log("Profile:getProfile");
+      if (user?.at === params.id) {
         setIsMe(true);
+        setProfile(user);
+      } else {
+        setIsMe(false);
+        setProfile(await getUserWithTheirAt(params.id));
       }
     };
-    getUser();
-  }, [user, params.id]);
+    getProfile();
+  }, [user, params]);
 
+  // do I follow the user?
   useEffect(() => {
     const doIFollow = async () => {
-      if (!user || !profile) return;
-      setFollowsUser(await doesFollow(user, profile));
+      console.log("Profile:doIFollow");
+      if (isMe || !user || !profile) return;
+      setFollowsUser(await doesFollow(user._id, profile._id));
     };
     doIFollow();
-  }, [user, profile]);
+  }, [isMe, user, profile]);
 
   return (
     <div>
@@ -75,7 +77,7 @@ const Profile = () => {
           )}
           {isMe && <button>edit</button>}
         </div>
-        <UserId uid={profile?.id || ""} isMe={isMe} />
+        <UserId at={profile?.at || ""} isMe={isMe} />
         {user &&
           profile &&
           (followsUser ? (

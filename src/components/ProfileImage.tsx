@@ -9,15 +9,15 @@ const Image = styled.img`
 
 interface Props {
   url?: string;
-  userId?: string;
+  userAt?: string;
 }
 const ProfileImage = (props: Props) => {
-  const { url, userId } = props;
+  const { url, userAt } = props;
   let img = url;
-  if (!url) {
-    img = portrait;
-  }
-  return <Image src={img} alt={userId ? `@${userId}` : `error`} />;
+
+  if (!url) img = portrait;
+
+  return <Image src={img} alt={userAt ? `@${userAt}` : `error`} />;
 };
 
 export default ProfileImage;

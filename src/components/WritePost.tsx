@@ -18,10 +18,10 @@ const WritePost = () => {
       await postsRef.add({
         text: post,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        authorId: user.uid,
-        authorAt: author.id,
-        authorName: user.displayName,
-        photoURL: user.photoURL,
+        authorId: user._id,
+        authorAt: author.at,
+        authorName: user.name,
+        photoURL: user.profileImage,
       });
       setPost("");
     } catch (error) {
@@ -33,7 +33,7 @@ const WritePost = () => {
   useEffect(() => {
     const getUser = async () => {
       if (!user) return;
-      const u = await firestore.doc(`users/${user.uid}`).get();
+      const u = await firestore.doc(`users/${user._id}`).get();
       const p = u.data();
       if (p) {
         p.uid = u.id;

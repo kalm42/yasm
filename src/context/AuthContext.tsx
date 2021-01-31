@@ -1,11 +1,12 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import firebase from "firebase/app";
-import { auth } from "../services/firebase";
+import { auth, getUserWithId } from "../services/firebase";
+import { UserType } from "../models";
 
 interface AuthContextInterface {
   login: Function;
   logout: Function;
-  user: firebase.User | null;
+  user: UserType | null;
 }
 const AuthContext = createContext<AuthContextInterface>({
   login: () => false,
@@ -14,28 +15,45 @@ const AuthContext = createContext<AuthContextInterface>({
 });
 
 interface Props {}
-function AuthProvider(props: Props) {
-  const [user, setUser] = useState<firebase.User | null>(null);
-  firebase.auth().onAuthStateChanged((googleUser) => {
-    if (googleUser) {
-      setUser(googleUser);
-    } else if (user) {
-      setUser(null);
-    }
-  });
+const AuthProvider = (props: Props) => {
+  const [user, setUser] = useState<UserType | null>(null);
+
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged((googleUser) => {
+      if (googleUser) {
+        getUserWithId(googleUser.uid).then((fireUser) => {
+          setUser(fireUser as UserType);
+        });
+      } else {
+        setUser(null);
+      }
+    });
+  }, []);
 
   const login = () => {
     const provider = new firebase.auth.GoogleAuthProvider();
     auth.signInWithPopup(provider);
   };
+
   const logout = () => {
     if (auth.currentUser) {
       auth.signOut();
     }
   };
 
-  return <AuthContext.Provider value={{ login, logout, user }} {...props} />;
-}
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        logout,
+      }}
+      {...props}
+    />
+  );
+};
+
+export default AuthContext;
 
 function useAuth() {
   const context = useContext(AuthContext);

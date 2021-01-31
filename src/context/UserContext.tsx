@@ -1,8 +1,8 @@
 import { createContext, useContext } from "react";
-import firebase from "firebase/app";
 import { useAuth } from "./AuthContext";
+import { UserType } from "../models";
 interface UserContextInterface {
-  user: firebase.User | null;
+  user: UserType | null;
 }
 const UserContext = createContext<UserContextInterface>({ user: null });
 

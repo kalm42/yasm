@@ -19,7 +19,7 @@ const Biography = (props: Props) => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateDocument(`users/${user?.uid}`, { bio: dirtyBio }).then(() =>
+    updateDocument(`users/${user?._id}`, { bio: dirtyBio }).then(() =>
       setEdit(false)
     );
   };

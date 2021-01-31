@@ -1,9 +1,16 @@
-import firebase from "firebase/app";
+import { DocumentReference, ServerTimestamp } from "../services/firebase";
 
-export default interface CommentType {
-  createdAt: firebase.firestore.FieldValue;
-  text: string;
+export interface NewComment {
   authorId: string;
+  createdAt: ServerTimestamp;
+  commentCount: number;
   score: number;
-  replyCount: number;
+  level: number;
+  parentId?: string;
+  text: string;
+}
+
+export default interface CommentType extends NewComment {
+  _id: string;
+  _ref: DocumentReference;
 }
