@@ -1,6 +1,7 @@
 import React, { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
+import { useUser } from "../context";
 import UserCard from "./UserCard";
 
 const Base = styled.div`
@@ -28,29 +29,31 @@ interface Props {
 
 const Layout = (props: Props) => {
   const { children } = props;
+  const { user } = useUser();
   return (
     <Base>
       <Header>
         <p>YASM</p>
-        <nav>
+        <nav style={{ flex: 1 }}>
           <ul>
             <li>
               <Link to="/">Home</Link>
             </li>
-            <li>
-              <Link to="/notifications">Notifications</Link>
-            </li>
-            <li>
-              <Link to="/bookmarks">Bookmarks</Link>
-            </li>
-            <li>
-              <Link to={`/kalm42`}>Profile</Link>
-            </li>
+            {user && (
+              <>
+                <li>
+                  <Link to="/notifications">Notifications</Link>
+                </li>
+                <li>
+                  <Link to="/bookmarks">Bookmarks</Link>
+                </li>
+                <li>
+                  <Link to={`/${user.at}`}>Profile</Link>
+                </li>
+              </>
+            )}
           </ul>
         </nav>
-        <CallToAction>
-          <button>Post Sumthin'</button>
-        </CallToAction>
         <UserCard />
       </Header>
       <main>{children}</main>

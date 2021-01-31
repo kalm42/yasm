@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import { Url } from "url";
 import portrait from "../assets/portrait.jpg";
 
 const Image = styled.img`
@@ -11,6 +10,7 @@ interface Props {
   url?: string;
   userAt?: string;
 }
+
 const ProfileImage = (props: Props) => {
   const { url, userAt } = props;
   let img = url;

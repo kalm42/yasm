@@ -1,4 +1,4 @@
-import { getFollowers, getMyFeed } from "../services/firebase";
+import { getAnonFeed, getFollowers, getMyFeed } from "../services/firebase";
 import Post from "./Post";
 import { useUser } from "../context";
 import { useEffect, useState } from "react";
@@ -17,7 +17,17 @@ const Feed = () => {
       setPosts(await getMyFeed(await getFollowers(user._id)));
       setIsLoading(false);
     };
-    fetchFollows();
+    const fetchAnon = async () => {
+      console.log("Feed:fetchAnon");
+      setIsLoading(true);
+      setPosts(await getAnonFeed());
+      setIsLoading(false);
+    };
+    if (user) {
+      fetchFollows();
+    } else {
+      fetchAnon();
+    }
   }, [user]);
   return (
     <section>

@@ -11,9 +11,7 @@ const HomePage = () => {
       <div>
         <h3>Features still in development:</h3>
         <ul>
-          <li>Comment system</li>
           <li>Mention system</li>
-          <li>Notifications</li>
           <li>Push Notifications</li>
           <li>Offline use</li>
           <li>PWA Install</li>

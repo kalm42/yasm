@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useUser } from "../context";
 import { CommentType, PostType, UserType } from "../models";
 import { getRepliesToComment, getUserWithId } from "../services/firebase";
 import Report from "./Report";
@@ -13,6 +14,7 @@ const Comment = (props: Props) => {
   const { comment, post } = props;
   const [comments, setComments] = useState<CommentType[] | null>(null);
   const [author, setAuthor] = useState<UserType | null>(null);
+  const { user } = useUser();
 
   const getReplies = async () => {
     setComments(
@@ -36,25 +38,28 @@ const Comment = (props: Props) => {
         </p>
         <div>
           <p>{comment.text}</p>
-          <ul
-            style={{
-              display: "flex",
-              listStyle: "none",
-              padding: 0,
-              margin: 0,
-              gap: "calc(1vmin)",
-            }}
-          >
-            <li>
-              <Score document={comment} />
-            </li>
-            <li>
-              <Report document={comment} />
-            </li>
-            <li>
-              <WriteComment post={post} parentComment={comment} />
-            </li>
-          </ul>
+          <fieldset disabled={!user}>
+            <ul
+              style={{
+                display: "flex",
+                listStyle: "none",
+                padding: 0,
+                margin: 0,
+                gap: "calc(1vmin)",
+              }}
+            >
+              <li>
+                <Score document={comment} />
+              </li>
+              <li>
+                <Report document={comment} />
+              </li>
+              <li>
+                <WriteComment post={post} parentComment={comment} />
+              </li>
+            </ul>
+            {!user && <p>To interact with a comment please login.</p>}
+          </fieldset>
         </div>
       </div>
       <section style={{ padding: "calc(1vmin)", border: "1px solid black" }}>

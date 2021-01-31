@@ -4,6 +4,7 @@ import UserType from "./users";
 import CommentType, { NewComment } from "./comments";
 import FollowType from "./follows";
 import ReportType, { NewReport } from "./reports";
+import NotificationType from "./notifications";
 
 export type {
   InteractionType,
@@ -15,4 +16,5 @@ export type {
   NewComment,
   ReportType,
   NewReport,
+  NotificationType,
 };

@@ -8,6 +8,7 @@ import Score from "../components/Score";
 import { useUser } from "../context";
 import { InteractionType, PostType, UserType } from "../models";
 import {
+  auth,
   getInteractionWith,
   getPostByDocId,
   getUserWithId,
@@ -55,16 +56,19 @@ const Post = () => {
   return (
     <div>
       <div>
-        <ProfileImage url={user?.profileImage} userAt={user?.at} />
+        <ProfileImage url={author?.profileImage} userAt={author?.at} />
         <p>
           {author?.name} - @{author?.at}
         </p>
       </div>
       <article>{post.text}</article>
       <div>
-        <Score document={post} />
-        <Bookmark post={post} interaction={interactions} />
-        <Report document={post} />
+        <fieldset disabled={!user}>
+          <Score document={post} />
+          <Bookmark post={post} interaction={interactions} />
+          <Report document={post} />
+          {!user && <p>To interact with a post please login.</p>}
+        </fieldset>
       </div>
       <Comments post={post} />
     </div>

@@ -37,15 +37,18 @@ const Comments = (props: Props) => {
     <section>
       <h3>Comments - {post.commentCount}</h3>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="comment">Your comment:</label>
-        <input
-          type="text"
-          name="comment"
-          required
-          value={comment}
-          onChange={handleUpdate}
-        />
-        <button type="submit">Submit</button>
+        <fieldset disabled={!user}>
+          <label htmlFor="comment">Your comment:</label>
+          <input
+            type="text"
+            name="comment"
+            required
+            value={comment}
+            onChange={handleUpdate}
+          />
+          <button type="submit">Submit</button>
+          {!user && <p>To comment please login.</p>}
+        </fieldset>
       </form>
       {comments.map((comment, index) => (
         <Comment comment={comment} post={post} key={index} />

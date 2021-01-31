@@ -78,20 +78,23 @@ const Post = (props: PostType) => {
         <div>
           <Link to={`/post/${_id}`}>View post</Link>
         </div>
-        <ToolBar>
-          <Tool>
-            <Score document={props} />
-          </Tool>
-          <Tool>
-            <WriteComment post={props} />
-          </Tool>
-          <Tool>
-            <Bookmark post={props} interaction={interactions} />
-          </Tool>
-          <Tool>
-            <Report document={props} />
-          </Tool>
-        </ToolBar>
+        <fieldset disabled={!user}>
+          <ToolBar>
+            <Tool>
+              <Score document={props} />
+            </Tool>
+            <Tool>
+              <WriteComment post={props} />
+            </Tool>
+            <Tool>
+              <Bookmark post={props} interaction={interactions} />
+            </Tool>
+            <Tool>
+              <Report document={props} />
+            </Tool>
+          </ToolBar>
+          {!user && <p>To interact with posts please login.</p>}
+        </fieldset>
       </PostWrapper>
     </Wrapper>
   );
