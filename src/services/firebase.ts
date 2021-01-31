@@ -45,7 +45,6 @@ export interface ServerTimestamp {
 export type CollectionReference = firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
 export type DocumentReference = firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>;
 type QuerySnapshot = firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>;
-type QueryDocumentSnapshot = firebase.firestore.QueryDocumentSnapshot<firebase.firestore.DocumentData>;
 
 /**
  * Returns the firebase synced timestamp

@@ -8,7 +8,6 @@ import Score from "../components/Score";
 import { useUser } from "../context";
 import { InteractionType, PostType, UserType } from "../models";
 import {
-  auth,
   getInteractionWith,
   getPostByDocId,
   getUserWithId,
