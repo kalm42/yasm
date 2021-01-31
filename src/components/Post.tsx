@@ -52,7 +52,12 @@ const Post = (props: PostType) => {
     const getInteractions = async () => {
       console.log("Post:getInteractions");
       if (!props || !user) return;
-      setInteractions(await getInteractionWith(props, user));
+      try {
+        setInteractions(await getInteractionWith(props, user));
+      } catch (error) {
+        // getInteractionWith throws an error if the document doesn't exist
+        // this is here to swallow that error.
+      }
     };
     getInteractions();
   }, [user, props]);
@@ -61,7 +66,11 @@ const Post = (props: PostType) => {
   useEffect(() => {
     const getAuthor = async () => {
       console.log("Post:getAuthor");
-      setAuthor(await getUserWithId(authorId));
+      try {
+        setAuthor(await getUserWithId(authorId));
+      } catch (error) {
+        console.warn("Post:getAuthor", error.message);
+      }
     };
     getAuthor();
   }, [authorId]);

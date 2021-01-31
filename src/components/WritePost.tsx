@@ -33,11 +33,15 @@ const WritePost = () => {
   useEffect(() => {
     const getUser = async () => {
       if (!user) return;
-      const u = await firestore.doc(`users/${user._id}`).get();
-      const p = u.data();
-      if (p) {
-        p.uid = u.id;
-        setAuthor(p as UserType);
+      try {
+        const u = await firestore.doc(`users/${user._id}`).get();
+        const p = u.data();
+        if (p) {
+          p.uid = u.id;
+          setAuthor(p as UserType);
+        }
+      } catch (error) {
+        console.warn("WritePost:getUser", error.message);
       }
     };
     getUser();

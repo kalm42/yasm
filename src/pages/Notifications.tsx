@@ -30,7 +30,11 @@ const Notifications = () => {
     const getNotifications = async () => {
       console.log("Notifications:getNotifications");
       if (!user) return;
-      setNotifications(await getMyNotifications(user));
+      try {
+        setNotifications(await getMyNotifications(user));
+      } catch (error) {
+        console.warn("Notifications:getNotifications", error.message);
+      }
     };
     getNotifications();
   }, [user]);

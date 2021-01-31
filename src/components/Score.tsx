@@ -31,11 +31,16 @@ const Score = (props: Props) => {
     const checkForInteraction = async () => {
       console.log("Score:checkForInteraction");
       if (!user) return;
-      getInteractionWith(document, user).then((interaction) => {
-        if (interaction?.vote !== undefined) {
-          setHasVoted(true);
-        }
-      });
+      getInteractionWith(document, user)
+        .then((interaction) => {
+          if (interaction?.vote !== undefined) {
+            setHasVoted(true);
+          }
+        })
+        .catch(() => {
+          // throws an error if the document doesn't exist. This is here to
+          // swallow the error.
+        });
     };
     checkForInteraction();
   }, [user, document]);

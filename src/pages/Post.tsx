@@ -24,8 +24,12 @@ const Post = () => {
 
   useEffect(() => {
     const fetchPost = async () => {
-      const p = await getPostByDocId(params.id);
-      setPost(p);
+      try {
+        const p = await getPostByDocId(params.id);
+        setPost(p);
+      } catch (error) {
+        console.warn("Post:fetchPost", error.message);
+      }
     };
     fetchPost();
   }, [params]);
@@ -35,7 +39,11 @@ const Post = () => {
     const getAuthor = async () => {
       console.log("page Post:getAuthor");
       if (!post) return;
-      setAuthor(await getUserWithId(post.authorId));
+      try {
+        setAuthor(await getUserWithId(post.authorId));
+      } catch (error) {
+        console.warn("Post:getAuthor", error.message);
+      }
     };
     getAuthor();
   }, [post]);
@@ -45,7 +53,12 @@ const Post = () => {
     const getInteractions = async () => {
       console.log("page Post:getInteractions");
       if (!user || !post) return;
-      setInteractions(await getInteractionWith(post, user));
+      try {
+        setInteractions(await getInteractionWith(post, user));
+      } catch (error) {
+        // getInteractionWith throws an error if the document doesn't exist
+        // this is here to swallow that error.
+      }
     };
     getInteractions();
   }, [post, user]);

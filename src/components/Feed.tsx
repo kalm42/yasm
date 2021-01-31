@@ -14,13 +14,21 @@ const Feed = () => {
       console.log("running... Feed:fetchFollows");
       setIsLoading(true);
       if (!user) return;
-      setPosts(await getMyFeed(await getFollowers(user._id)));
+      try {
+        setPosts(await getMyFeed(await getFollowers(user._id)));
+      } catch (error) {
+        console.warn("Feed:fetchFollows", error.message);
+      }
       setIsLoading(false);
     };
     const fetchAnon = async () => {
       console.log("Feed:fetchAnon");
       setIsLoading(true);
-      setPosts(await getAnonFeed());
+      try {
+        setPosts(await getAnonFeed());
+      } catch (error) {
+        console.warn("Feed:fetchAnon", error.message);
+      }
       setIsLoading(false);
     };
     if (user) {

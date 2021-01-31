@@ -21,6 +21,6 @@ export default async function createNewUser(user: UserRecord): Promise<void> {
   try {
     await usersRef.doc(user.uid).set(newUser);
   } catch (error) {
-    console.log(error);
+    console.log("Cloud Functions: ", error.message);
   }
 }

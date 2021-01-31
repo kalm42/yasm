@@ -51,7 +51,11 @@ const Profile = () => {
         setProfile(user);
       } else {
         setIsMe(false);
-        setProfile(await getUserWithTheirAt(params.id));
+        try {
+          setProfile(await getUserWithTheirAt(params.id));
+        } catch (error) {
+          console.warn("Profile:getProfile", error.message);
+        }
       }
     };
     getProfile();
@@ -62,7 +66,11 @@ const Profile = () => {
     const doIFollow = async () => {
       console.log("Profile:doIFollow");
       if (isMe || !user || !profile) return;
-      setFollowsUser(await doesFollow(user._id, profile._id));
+      try {
+        setFollowsUser(await doesFollow(user._id, profile._id));
+      } catch (error) {
+        console.warn("Profile:doIFollow", error.message);
+      }
     };
     doIFollow();
   }, [isMe, user, profile]);

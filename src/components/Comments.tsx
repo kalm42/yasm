@@ -27,8 +27,12 @@ const Comments = (props: Props) => {
 
   useEffect(() => {
     const fetchComments = async () => {
-      const intermediaVariable = await getCommentsForPost(post._id);
-      setComments(intermediaVariable);
+      try {
+        const intermediaVariable = await getCommentsForPost(post._id);
+        setComments(intermediaVariable);
+      } catch (error) {
+        console.warn("Comments:fetchComments", error.message);
+      }
     };
     fetchComments();
   }, [post]);

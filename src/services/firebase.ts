@@ -412,11 +412,11 @@ export function getInteractionWith(
   return firestore
     .doc(`interactions/${user._id}_${doc._id}`)
     .get()
-    .then((doc) => {
-      const interaction = doc.data() as InteractionType;
+    .then((d) => {
+      const interaction = d.data() as InteractionType;
       if (!interaction) return null;
-      interaction._id = doc.id;
-      interaction._ref = doc;
+      interaction._id = d.id;
+      interaction._ref = d;
       return interaction;
     });
 }

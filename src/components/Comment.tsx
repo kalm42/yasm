@@ -17,15 +17,23 @@ const Comment = (props: Props) => {
   const { user } = useUser();
 
   const getReplies = async () => {
-    setComments(
-      await getRepliesToComment(post._id, comment._id, comment.level + 1)
-    );
+    try {
+      setComments(
+        await getRepliesToComment(post._id, comment._id, comment.level + 1)
+      );
+    } catch (error) {
+      console.warn("Comment:getReplies", error.message);
+    }
   };
 
   // fetch author details
   useEffect(() => {
     const getAuthor = async () => {
-      setAuthor(await getUserWithId(comment.authorId));
+      try {
+        setAuthor(await getUserWithId(comment.authorId));
+      } catch (error) {
+        console.warn("Comment:getAuthor", error.message);
+      }
     };
     getAuthor();
   }, [comment]);
