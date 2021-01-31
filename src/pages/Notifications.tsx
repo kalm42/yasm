@@ -22,16 +22,16 @@ const Notifications = () => {
     event.preventDefault();
     if (!user || !markRead.length) return;
     updateNotifications(markRead);
-    getNotifications();
-  };
-
-  const getNotifications = async () => {
-    console.log("Notifications:getNotifications");
-    if (!user) return;
-    setNotifications(await getMyNotifications(user));
+    const readIds = markRead.map((r) => r._id);
+    setNotifications(notifications.filter((n) => !readIds.includes(n._id)));
   };
 
   useEffect(() => {
+    const getNotifications = async () => {
+      console.log("Notifications:getNotifications");
+      if (!user) return;
+      setNotifications(await getMyNotifications(user));
+    };
     getNotifications();
   }, [user]);
 

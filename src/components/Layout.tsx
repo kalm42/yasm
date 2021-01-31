@@ -19,10 +19,6 @@ const Header = styled.header`
   max-height: calc(100vh);
 `;
 
-const CallToAction = styled.div`
-  flex: 1;
-`;
-
 interface Props {
   children: ReactNode;
 }
