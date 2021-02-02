@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
 import { CommentType, PostType } from "../models";
 import { getCommentsForPost, writeComment } from "../services/firebase";
@@ -38,27 +39,41 @@ const Comments = (props: Props) => {
   }, [post]);
 
   return (
-    <section>
-      <h3>Comments - {post.commentCount}</h3>
-      <form onSubmit={handleSubmit}>
-        <fieldset disabled={!user}>
-          <label htmlFor="comment">Your comment:</label>
-          <input
-            type="text"
-            name="comment"
-            required
-            value={comment}
-            onChange={handleUpdate}
-          />
-          <button type="submit">Submit</button>
-          {!user && <p>To comment please login.</p>}
-        </fieldset>
-      </form>
-      {comments.map((comment, index) => (
-        <Comment comment={comment} post={post} key={index} />
-      ))}
-    </section>
+    <Sentry.ErrorBoundary fallback={FallbackComment}>
+      <section>
+        <h3>Comments - {post.commentCount}</h3>
+        <form onSubmit={handleSubmit}>
+          <fieldset disabled={!user}>
+            <label htmlFor="comment">Your comment:</label>
+            <input
+              type="text"
+              name="comment"
+              required
+              value={comment}
+              onChange={handleUpdate}
+            />
+            <button type="submit">Submit</button>
+            {!user && <p>To comment please login.</p>}
+          </fieldset>
+        </form>
+        {comments.map((comment, index) => (
+          <Comment comment={comment} post={post} key={index} />
+        ))}
+      </section>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackComment() {
+  return (
+    <div>
+      <h1>Error: Comments</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default Comments;

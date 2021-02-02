@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
 import { NotificationType } from "../models";
 import { getMyNotifications, updateNotifications } from "../services/firebase";
@@ -40,26 +41,40 @@ const Notifications = () => {
   }, [user]);
 
   return (
-    <div>
-      <h1>Notifications</h1>
-      <form onSubmit={handleSubmit}>
-        <button type="submit">Mark as read</button>
-        {notifications.map((notification) => (
-          <div key={notification._id}>
-            <input
-              type="checkbox"
-              name={notification._id}
-              onChange={handleUpdate}
-            />
-            <label htmlFor={notification._id}>
-              {notification.hasRead ? "read" : "not read"} -{" "}
-              {notification.message}
-            </label>
-          </div>
-        ))}
-      </form>
-    </div>
+    <Sentry.ErrorBoundary fallback={FallbackNotificationsPage}>
+      <div>
+        <h1>Notifications</h1>
+        <form onSubmit={handleSubmit}>
+          <button type="submit">Mark as read</button>
+          {notifications.map((notification) => (
+            <div key={notification._id}>
+              <input
+                type="checkbox"
+                name={notification._id}
+                onChange={handleUpdate}
+              />
+              <label htmlFor={notification._id}>
+                {notification.hasRead ? "read" : "not read"} -{" "}
+                {notification.message}
+              </label>
+            </div>
+          ))}
+        </form>
+      </div>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackNotificationsPage() {
+  return (
+    <div>
+      <h1>Error: Notifications Page</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default Notifications;

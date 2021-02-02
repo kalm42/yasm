@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as Sentry from "@sentry/react";
 import { useAuth } from "../context";
 import { firestore, updateDocument } from "../services/firebase";
 
@@ -45,32 +46,46 @@ const UserId = (props: Props) => {
   };
 
   return (
-    <div>
-      <h2 id="at">User Name</h2>
-      {edit ? (
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="id"
-            aria-labelledby="at"
-            required
-            value={dirtyId}
-            onChange={handleUpdate}
-          />
-          {loading ? "..." : isOriginal ? "og" : "dup"}
-          <button type="submit">Save</button>
-          <button type="reset" onClick={handleCancel}>
-            Cancel
-          </button>
-        </form>
-      ) : (
-        <>
-          <p>{at}</p>
-          {isMe && <button onClick={() => setEdit(true)}>edit</button>}
-        </>
-      )}
-    </div>
+    <Sentry.ErrorBoundary fallback={FallbackUserId}>
+      <div>
+        <h2 id="at">User Name</h2>
+        {edit ? (
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="id"
+              aria-labelledby="at"
+              required
+              value={dirtyId}
+              onChange={handleUpdate}
+            />
+            {loading ? "..." : isOriginal ? "og" : "dup"}
+            <button type="submit">Save</button>
+            <button type="reset" onClick={handleCancel}>
+              Cancel
+            </button>
+          </form>
+        ) : (
+          <>
+            <p>{at}</p>
+            {isMe && <button onClick={() => setEdit(true)}>edit</button>}
+          </>
+        )}
+      </div>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackUserId() {
+  return (
+    <div>
+      <h1>Error: User</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default UserId;

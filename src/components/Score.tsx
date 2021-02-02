@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
 import { CommentType, PostType } from "../models";
 import {
@@ -46,16 +47,30 @@ const Score = (props: Props) => {
   }, [user, document]);
 
   return (
-    <div style={{ display: "flex", gap: "calc(1vmin)" }}>
-      <button onClick={thumbsUp} disabled={hasVoted}>
-        👍
-      </button>
-      <p>{document.score || 0}</p>
-      <button onClick={thumbsDown} disabled={hasVoted}>
-        👎
-      </button>
-    </div>
+    <Sentry.ErrorBoundary fallback={FallbackScore}>
+      <div style={{ display: "flex", gap: "calc(1vmin)" }}>
+        <button onClick={thumbsUp} disabled={hasVoted}>
+          👍
+        </button>
+        <p>{document.score || 0}</p>
+        <button onClick={thumbsDown} disabled={hasVoted}>
+          👎
+        </button>
+      </div>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackScore() {
+  return (
+    <div>
+      <h1>Error: Score</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default Score;

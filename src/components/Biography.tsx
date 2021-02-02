@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as Sentry from "@sentry/react";
 import { useAuth } from "../context";
 import { updateDocument } from "../services/firebase";
 
@@ -30,30 +31,44 @@ const Biography = (props: Props) => {
   };
 
   return (
-    <div>
-      <h2 id="bio">Biography</h2>
-      {edit ? (
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="bio"
-            aria-labelledby="bio"
-            value={dirtyBio}
-            onChange={handleUpdate}
-          />
-          <button type="submit">Save</button>
-          <button type="reset" onClick={handleCancel}>
-            Cancel
-          </button>
-        </form>
-      ) : (
-        <>
-          <p>{bio}</p>
-          {isMe && <button onClick={() => setEdit(true)}>edit</button>}
-        </>
-      )}
-    </div>
+    <Sentry.ErrorBoundary fallback={FallbackBio}>
+      <div>
+        <h2 id="bio">Biography</h2>
+        {edit ? (
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="bio"
+              aria-labelledby="bio"
+              value={dirtyBio}
+              onChange={handleUpdate}
+            />
+            <button type="submit">Save</button>
+            <button type="reset" onClick={handleCancel}>
+              Cancel
+            </button>
+          </form>
+        ) : (
+          <>
+            <p>{bio}</p>
+            {isMe && <button onClick={() => setEdit(true)}>edit</button>}
+          </>
+        )}
+      </div>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackBio() {
+  return (
+    <div>
+      <h1>Error: Biography</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default Biography;

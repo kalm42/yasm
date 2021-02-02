@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import Layout from "./components/Layout";
 import { ApplicationContext } from "./context";
 import Auth from "./pages/Auth";
@@ -13,35 +14,48 @@ import Settings from "./pages/Settings";
 function App() {
   return (
     <div>
-      <ApplicationContext>
-        <BrowserRouter>
-          <Layout>
-            <Switch>
-              <Route path="/auth">
-                <Auth />
-              </Route>
-              <Route path="/bookmarks">
-                <Bookmarks />
-              </Route>
-              <Route path="/notifications">
-                <Notifications />
-              </Route>
-              <Route path="/settings">
-                <Settings />
-              </Route>
-              <Route path="/post/:id">
-                <Post />
-              </Route>
-              <Route path="/:id">
-                <Profile />
-              </Route>
-              <Route path="/">
-                <Home />
-              </Route>
-            </Switch>
-          </Layout>
-        </BrowserRouter>
-      </ApplicationContext>
+      <Sentry.ErrorBoundary fallback={FallbackApp}>
+        <ApplicationContext>
+          <BrowserRouter>
+            <Layout>
+              <Switch>
+                <Route path="/auth">
+                  <Auth />
+                </Route>
+                <Route path="/bookmarks">
+                  <Bookmarks />
+                </Route>
+                <Route path="/notifications">
+                  <Notifications />
+                </Route>
+                <Route path="/settings">
+                  <Settings />
+                </Route>
+                <Route path="/post/:id">
+                  <Post />
+                </Route>
+                <Route path="/:id">
+                  <Profile />
+                </Route>
+                <Route path="/">
+                  <Home />
+                </Route>
+              </Switch>
+            </Layout>
+          </BrowserRouter>
+        </ApplicationContext>
+      </Sentry.ErrorBoundary>
+    </div>
+  );
+}
+
+function FallbackApp() {
+  return (
+    <div>
+      <p>
+        An error has occured please refresh the page. If this continues to
+        happen please contact support.
+      </p>
     </div>
   );
 }

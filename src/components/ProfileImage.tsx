@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import * as Sentry from "@sentry/react";
 import portrait from "../assets/portrait.jpg";
 
 const Image = styled.img`
@@ -17,7 +18,23 @@ const ProfileImage = (props: Props) => {
 
   if (!url) img = portrait;
 
-  return <Image src={img} alt={userAt ? `@${userAt}` : `error`} />;
+  return (
+    <Sentry.ErrorBoundary fallback={FallbackProfileImage}>
+      <Image src={img} alt={userAt ? `@${userAt}` : `error`} />
+    </Sentry.ErrorBoundary>
+  );
 };
+
+function FallbackProfileImage() {
+  return (
+    <div>
+      <h1>Error: Profile Image</h1>
+      <p>
+        An error has occured. Please refresh the page. If the problem persists
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default ProfileImage;

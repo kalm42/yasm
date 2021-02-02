@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { getAnonFeed, getFollowers, getMyFeed } from "../services/firebase";
 import Post from "./Post";
 import { useUser } from "../context";
@@ -38,15 +39,29 @@ const Feed = () => {
     }
   }, [user]);
   return (
-    <section>
-      <h2>the feed</h2>
-      {isLoading ? (
-        <p>... loading ...</p>
-      ) : (
-        posts.map((post) => <Post key={post._id} {...post} />)
-      )}
-    </section>
+    <Sentry.ErrorBoundary fallback={FallbackFeed}>
+      <section>
+        <h2>the feed</h2>
+        {isLoading ? (
+          <p>... loading ...</p>
+        ) : (
+          posts.map((post) => <Post key={post._id} {...post} />)
+        )}
+      </section>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackFeed() {
+  return (
+    <div>
+      <h1>Error: Feed</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default Feed;
