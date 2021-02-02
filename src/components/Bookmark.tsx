@@ -1,4 +1,5 @@
 import { useUser } from "../context";
+import * as Sentry from "@sentry/react";
 import { InteractionType, PostType } from "../models";
 import { bookmarkPost } from "../services/firebase";
 
@@ -15,11 +16,25 @@ const Bookmark = (props: Props) => {
     bookmarkPost(post, user);
   };
 
-  return interaction?.bookmarked ? (
-    <p>bookmarked</p>
-  ) : (
-    <button onClick={handleBookmark}>bookmark</button>
+  return (
+    <Sentry.ErrorBoundary fallback={FallbackBookmark}>
+      {interaction?.bookmarked ? (
+        <p>bookmarked</p>
+      ) : (
+        <button onClick={handleBookmark}>bookmark</button>
+      )}
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackBookmark() {
+  <div>
+    <h1>Error: Bookmark</h1>
+    <p>
+      An error has occured. Please refresh the page. If the error continues
+      please contact support.
+    </p>
+  </div>;
+}
 
 export default Bookmark;

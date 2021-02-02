@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import ProfileImage from "./ProfileImage";
 import { InteractionType, PostType, UserType } from "../models";
 import styled from "styled-components";
@@ -76,37 +77,51 @@ const Post = (props: PostType) => {
   }, [authorId]);
 
   return (
-    <Wrapper>
-      <ProfileImage url={author?.profileImage} userAt={author?.at} />
-      <PostWrapper>
-        <Author>
-          <p>{author?.name}</p>
-          <p>@{author?.at}</p>
-        </Author>
-        <div>{text}</div>
-        <div>
-          <Link to={`/post/${_id}`}>View post</Link>
-        </div>
-        <fieldset disabled={!user}>
-          <ToolBar>
-            <Tool>
-              <Score document={props} />
-            </Tool>
-            <Tool>
-              <WriteComment post={props} />
-            </Tool>
-            <Tool>
-              <Bookmark post={props} interaction={interactions} />
-            </Tool>
-            <Tool>
-              <Report document={props} />
-            </Tool>
-          </ToolBar>
-          {!user && <p>To interact with posts please login.</p>}
-        </fieldset>
-      </PostWrapper>
-    </Wrapper>
+    <Sentry.ErrorBoundary fallback={FallbackPost}>
+      <Wrapper>
+        <ProfileImage url={author?.profileImage} userAt={author?.at} />
+        <PostWrapper>
+          <Author>
+            <p>{author?.name}</p>
+            <p>@{author?.at}</p>
+          </Author>
+          <div>{text}</div>
+          <div>
+            <Link to={`/post/${_id}`}>View post</Link>
+          </div>
+          <fieldset disabled={!user}>
+            <ToolBar>
+              <Tool>
+                <Score document={props} />
+              </Tool>
+              <Tool>
+                <WriteComment post={props} />
+              </Tool>
+              <Tool>
+                <Bookmark post={props} interaction={interactions} />
+              </Tool>
+              <Tool>
+                <Report document={props} />
+              </Tool>
+            </ToolBar>
+            {!user && <p>To interact with posts please login.</p>}
+          </fieldset>
+        </PostWrapper>
+      </Wrapper>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackPost() {
+  return (
+    <div>
+      <h1>Error: Post</h1>
+      <p>
+        An error has occured. Please refresh the page. If the problem continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default Post;

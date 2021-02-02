@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
+import * as Sentry from "@sentry/react";
 import firebase from "firebase/app";
 import { firestore } from "../services/firebase";
 import { useUser } from "../context";
@@ -48,17 +49,31 @@ const WritePost = () => {
   }, [user]);
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        name="text"
-        value={post}
-        required
-        onChange={(e) => setPost(e.target.value)}
-      />
-      <button type="submit">✍️</button>
-    </form>
+    <Sentry.ErrorBoundary fallback={FallbackWritePost}>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          name="text"
+          value={post}
+          required
+          onChange={(e) => setPost(e.target.value)}
+        />
+        <button type="submit">✍️</button>
+      </form>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackWritePost() {
+  return (
+    <div>
+      <h1>Error: Write Post</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error persists
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default WritePost;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import * as Sentry from "@sentry/react";
 import Bookmark from "../components/Bookmark";
 import Comments from "../components/Comments";
 import ProfileImage from "../components/ProfileImage";
@@ -66,25 +67,39 @@ const Post = () => {
   if (!post) return null;
 
   return (
-    <div>
+    <Sentry.ErrorBoundary fallback={FallbackPost}>
       <div>
-        <ProfileImage url={author?.profileImage} userAt={author?.at} />
-        <p>
-          {author?.name} - @{author?.at}
-        </p>
+        <div>
+          <ProfileImage url={author?.profileImage} userAt={author?.at} />
+          <p>
+            {author?.name} - @{author?.at}
+          </p>
+        </div>
+        <article>{post.text}</article>
+        <div>
+          <fieldset disabled={!user}>
+            <Score document={post} />
+            <Bookmark post={post} interaction={interactions} />
+            <Report document={post} />
+            {!user && <p>To interact with a post please login.</p>}
+          </fieldset>
+        </div>
+        <Comments post={post} />
       </div>
-      <article>{post.text}</article>
-      <div>
-        <fieldset disabled={!user}>
-          <Score document={post} />
-          <Bookmark post={post} interaction={interactions} />
-          <Report document={post} />
-          {!user && <p>To interact with a post please login.</p>}
-        </fieldset>
-      </div>
-      <Comments post={post} />
-    </div>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackPost() {
+  return (
+    <div>
+      <h1>Error: Post Page</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error persists
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default Post;

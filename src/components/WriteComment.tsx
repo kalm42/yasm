@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { useState } from "react";
 import { useUser } from "../context";
 import { CommentType, PostType } from "../models";
@@ -26,24 +27,42 @@ const WriteComment = (props: Props) => {
     setIsCommenting(false);
     setComment("");
   };
-  return isCommenting ? (
-    <form onSubmit={handleSubmit}>
-      <label htmlFor="comment">Comment*:</label>
-      <input
-        type="text"
-        name="comment"
-        required
-        value={comment}
-        onChange={handleChange}
-      />
-      <button type="submit">✍️</button>
-    </form>
-  ) : (
-    <>
-      <button onClick={() => setIsCommenting(true)}>comment</button>
-      <p>({parentComment ? parentComment.commentCount : post.commentCount})</p>
-    </>
+  return (
+    <Sentry.ErrorBoundary fallback={FallbackWriteComment}>
+      {isCommenting ? (
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="comment">Comment*:</label>
+          <input
+            type="text"
+            name="comment"
+            required
+            value={comment}
+            onChange={handleChange}
+          />
+          <button type="submit">✍️</button>
+        </form>
+      ) : (
+        <>
+          <button onClick={() => setIsCommenting(true)}>comment</button>
+          <p>
+            ({parentComment ? parentComment.commentCount : post.commentCount})
+          </p>
+        </>
+      )}
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackWriteComment() {
+  return (
+    <div>
+      <h1>Error: Write Comment</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default WriteComment;

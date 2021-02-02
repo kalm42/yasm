@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
 import { CommentType, PostType, UserType } from "../models";
 import { getRepliesToComment, getUserWithId } from "../services/firebase";
@@ -39,45 +40,59 @@ const Comment = (props: Props) => {
   }, [comment]);
 
   return (
-    <section style={{ border: "1px solid black", padding: "calc(1vmin)" }}>
-      <div style={{ display: "flex", gap: "calc(1vmin)" }}>
-        <p>
-          {author?.name} at {comment.createdAt.toDate().toDateString()}
-        </p>
-        <div>
-          <p>{comment.text}</p>
-          <fieldset disabled={!user}>
-            <ul
-              style={{
-                display: "flex",
-                listStyle: "none",
-                padding: 0,
-                margin: 0,
-                gap: "calc(1vmin)",
-              }}
-            >
-              <li>
-                <Score document={comment} />
-              </li>
-              <li>
-                <Report document={comment} />
-              </li>
-              <li>
-                <WriteComment post={post} parentComment={comment} />
-              </li>
-            </ul>
-            {!user && <p>To interact with a comment please login.</p>}
-          </fieldset>
+    <Sentry.ErrorBoundary fallback={FallbackComment}>
+      <section style={{ border: "1px solid black", padding: "calc(1vmin)" }}>
+        <div style={{ display: "flex", gap: "calc(1vmin)" }}>
+          <p>
+            {author?.name} at {comment.createdAt.toDate().toDateString()}
+          </p>
+          <div>
+            <p>{comment.text}</p>
+            <fieldset disabled={!user}>
+              <ul
+                style={{
+                  display: "flex",
+                  listStyle: "none",
+                  padding: 0,
+                  margin: 0,
+                  gap: "calc(1vmin)",
+                }}
+              >
+                <li>
+                  <Score document={comment} />
+                </li>
+                <li>
+                  <Report document={comment} />
+                </li>
+                <li>
+                  <WriteComment post={post} parentComment={comment} />
+                </li>
+              </ul>
+              {!user && <p>To interact with a comment please login.</p>}
+            </fieldset>
+          </div>
         </div>
-      </div>
-      <section style={{ padding: "calc(1vmin)", border: "1px solid black" }}>
-        <button onClick={getReplies}>View the latest 10 of n replies.</button>
-        {comments?.map((reply) => (
-          <Comment comment={reply} post={post} key={reply._id} />
-        ))}
+        <section style={{ padding: "calc(1vmin)", border: "1px solid black" }}>
+          <button onClick={getReplies}>View the latest 10 of n replies.</button>
+          {comments?.map((reply) => (
+            <Comment comment={reply} post={post} key={reply._id} />
+          ))}
+        </section>
       </section>
-    </section>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackComment() {
+  return (
+    <div>
+      <h1>Error: Comment</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 export default Comment;

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
 import { updateDocument } from "../services/firebase";
 
@@ -47,40 +48,54 @@ const Links = (props: Props) => {
   };
 
   return (
-    <div>
-      <h2 id="links">Links</h2>
-      <ul>
-        {links.map((link, index) => {
-          return (
-            <Link
-              key={index}
-              update={handeEditSubmit}
-              link={link}
-              remove={handleRemove}
-              isMe={isMe}
-            />
-          );
-        })}
-      </ul>
-      {isMe &&
-        (add ? (
-          <form onSubmit={handleAddSubmit}>
-            <label htmlFor="link">Link*:</label>
-            <input
-              type="url"
-              name="link"
-              value={link}
-              required
-              onChange={handleAddUpdate}
-            />
-            <button type="submit">Add</button>
-          </form>
-        ) : (
-          <button onClick={() => setAdd(true)}>add</button>
-        ))}
-    </div>
+    <Sentry.ErrorBoundary fallback={FallbackLinks}>
+      <div>
+        <h2 id="links">Links</h2>
+        <ul>
+          {links.map((link, index) => {
+            return (
+              <Link
+                key={index}
+                update={handeEditSubmit}
+                link={link}
+                remove={handleRemove}
+                isMe={isMe}
+              />
+            );
+          })}
+        </ul>
+        {isMe &&
+          (add ? (
+            <form onSubmit={handleAddSubmit}>
+              <label htmlFor="link">Link*:</label>
+              <input
+                type="url"
+                name="link"
+                value={link}
+                required
+                onChange={handleAddUpdate}
+              />
+              <button type="submit">Add</button>
+            </form>
+          ) : (
+            <button onClick={() => setAdd(true)}>add</button>
+          ))}
+      </div>
+    </Sentry.ErrorBoundary>
   );
 };
+
+function FallbackLinks() {
+  return (
+    <div>
+      <h1>Error: Links</h1>
+      <p>
+        An error has occured. Please refresh the page. If the error continues
+        please contact support.
+      </p>
+    </div>
+  );
+}
 
 interface LinkProps {
   isMe: boolean;
@@ -109,34 +124,46 @@ function Link(props: LinkProps) {
 
   const handleRemove = () => remove(link);
 
-  if (edit) {
-    return (
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="link">Link*:</label>
-        <input
-          type="url"
-          name="link"
-          required
-          value={dirtyLink}
-          onChange={handleChange}
-        />
-        <button type="submit">Save</button>
-        <button type="reset" onClick={handleCancel}>
-          Cancel
-        </button>
-      </form>
-    );
-  } else {
-    return (
-      <li>
-        {isMe && <button onClick={handleRemove}>r</button>}
-        <a href={link} target="_blank" rel="noopener noreferrer">
-          {link}
-        </a>{" "}
-        {isMe && <button onClick={() => setEdit(true)}>e</button>}
-      </li>
-    );
-  }
+  return (
+    <Sentry.ErrorBoundary fallback={FallbackLink}>
+      {edit ? (
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="link">Link*:</label>
+          <input
+            type="url"
+            name="link"
+            required
+            value={dirtyLink}
+            onChange={handleChange}
+          />
+          <button type="submit">Save</button>
+          <button type="reset" onClick={handleCancel}>
+            Cancel
+          </button>
+        </form>
+      ) : (
+        <li>
+          {isMe && <button onClick={handleRemove}>r</button>}
+          <a href={link} target="_blank" rel="noopener noreferrer">
+            {link}
+          </a>{" "}
+          {isMe && <button onClick={() => setEdit(true)}>e</button>}
+        </li>
+      )}
+    </Sentry.ErrorBoundary>
+  );
+}
+
+function FallbackLink() {
+  return (
+    <div>
+      <h1>Error: Link</h1>
+      <p>
+        An error has occured. Please refresh the page. If the problem continues
+        please contact support.
+      </p>
+    </div>
+  );
 }
 
 export default Links;
