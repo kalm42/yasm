@@ -32,15 +32,11 @@ const Profile = () => {
 
   const follow = () => {
     if (!user || !profile) return;
-    followUser(user, profile)
-      .then(() => setFollowsUser(true))
-      .catch(() => console.warn("Follow failed"));
+    followUser(user, profile).then(() => setFollowsUser(true));
   };
   const unfollow = () => {
     if (!user || !profile) return;
-    unfollowUser(user, profile)
-      .then(() => setFollowsUser(false))
-      .catch(() => console.warn("Unfollow failed"));
+    unfollowUser(user, profile).then(() => setFollowsUser(false));
   };
 
   // is the user me, or do I need to get the user data from external
