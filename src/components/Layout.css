@@ -1,0 +1,30 @@
+.layout__root {
+}
+
+.layout__header {
+}
+
+.layout__nav {
+  display: block;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background: var(--background);
+  right: 0;
+  z-index: 10;
+}
+
+.layout__nav ul {
+  display: flex;
+  justify-content: space-around;
+  list-style: none;
+  margin: calc(4vmin);
+  padding: 0;
+}
+
+.layout__nav a {
+  background-image: var(--accent);
+  background-clip: text;
+  text-fill-color: transparent;
+  text-decoration: none;
+}
