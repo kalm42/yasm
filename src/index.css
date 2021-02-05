@@ -1,20 +1,34 @@
 :root {
-  --background: linear-gradient(to bottom right, #151524, #08080e);
+  --background: linear-gradient(45deg, #151524, #08080e);
   --light-background: linear-gradient(to bottom right, #1c1c27, #131319);
   --text: white;
+  --text-dark: #464f61;
   --accent: linear-gradient(#f54b64, #f78361);
-  --accent-top-down: linear-gradient(to bottom, #f54b64, #f78361);
+  --alt-accent: linear-gradient(to right, #f54b64, #f78361);
+  --accent-start: #f54b64;
+  --accent-end: #f78361;
 }
 
 body {
   margin: 0;
   background: var(--background);
-  color: white;
+  color: var(--text);
+  font-size: calc(3.5vmin);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 300;
 }
 
 code {

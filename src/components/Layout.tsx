@@ -1,9 +1,8 @@
 import React, { ReactNode } from "react";
 import * as Sentry from "@sentry/react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useUser } from "../context";
-import UserCard from "./UserCard";
-import "./Layout.css";
+import styles from "./Layout.module.css";
 
 interface Props {
   children: ReactNode;
@@ -12,33 +11,53 @@ interface Props {
 const Layout = (props: Props) => {
   const { children } = props;
   const { user } = useUser();
+  console.log({ styles });
   return (
     <Sentry.ErrorBoundary fallback={FallbackLayout}>
-      <div className="layout__root">
-        <header className="layout__header">
-          <nav className="layout__nav">
+      <div className={styles.root}>
+        <header className={styles.header}>
+          <nav className={styles.nav}>
             <ul>
               <li>
-                <Link to="/">Home</Link>
+                <NavLink exact activeClassName={styles.active} to="/">
+                  Home
+                </NavLink>
               </li>
               {user && (
                 <>
                   <li>
-                    <Link to="/notifications">Notifications</Link>
+                    <NavLink
+                      exact
+                      activeClassName={styles.active}
+                      to="/notifications"
+                    >
+                      Notifications
+                    </NavLink>
                   </li>
                   <li>
-                    <Link to="/bookmarks">Bookmarks</Link>
+                    <NavLink
+                      exact
+                      activeClassName={styles.active}
+                      to="/bookmarks"
+                    >
+                      Bookmarks
+                    </NavLink>
                   </li>
                   <li>
-                    <Link to={`/${user.at}`}>Profile</Link>
+                    <NavLink
+                      exact
+                      activeClassName={styles.active}
+                      to={`/${user.at}`}
+                    >
+                      Profile
+                    </NavLink>
                   </li>
                 </>
               )}
             </ul>
           </nav>
-          <UserCard />
         </header>
-        <main>{children}</main>
+        <main className={styles.main}>{children}</main>
       </div>
     </Sentry.ErrorBoundary>
   );

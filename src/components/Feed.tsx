@@ -4,6 +4,7 @@ import Post from "./Post";
 import { useUser } from "../context";
 import { useEffect, useState } from "react";
 import { PostType } from "../models";
+import styles from "./Feed.module.css";
 
 const Feed = () => {
   const { user } = useUser();
@@ -41,7 +42,7 @@ const Feed = () => {
   return (
     <Sentry.ErrorBoundary fallback={FallbackFeed}>
       <section>
-        <h2>the feed</h2>
+        <h1 className={styles.title}>the feed</h1>
         {isLoading ? (
           <p>... loading ...</p>
         ) : (

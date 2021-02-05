@@ -7,6 +7,7 @@ import {
   getInteractionWith,
   incrementScore,
 } from "../services/firebase";
+import styles from "./Score.module.css";
 
 interface Props {
   document: CommentType | PostType;
@@ -14,18 +15,19 @@ interface Props {
 
 const Score = (props: Props) => {
   const { document } = props;
-  const [hasVoted, setHasVoted] = useState(false);
+  const [didUpVote, setDidUpVote] = useState(false);
+  const [didDownVote, setDidDownVote] = useState(false);
   const { user } = useUser();
 
   const thumbsUp = () => {
     if (!user) return;
     incrementScore(document, user);
-    setHasVoted(true);
+    setDidUpVote(true);
   };
   const thumbsDown = () => {
     if (!user) return;
     decrementScore(document, user);
-    setHasVoted(true);
+    setDidDownVote(true);
   };
 
   useEffect(() => {
@@ -33,9 +35,13 @@ const Score = (props: Props) => {
       console.log("Score:checkForInteraction");
       if (!user) return;
       getInteractionWith(document, user)
-        .then((interaction) => {
-          if (interaction?.vote !== undefined) {
-            setHasVoted(true);
+        .then((inter) => {
+          if (inter?.vote !== undefined) {
+            if (inter.vote) {
+              setDidUpVote(true);
+            } else {
+              setDidDownVote(true);
+            }
           }
         })
         .catch(() => {
@@ -48,12 +54,18 @@ const Score = (props: Props) => {
 
   return (
     <Sentry.ErrorBoundary fallback={FallbackScore}>
-      <div style={{ display: "flex", gap: "calc(1vmin)" }}>
-        <button onClick={thumbsUp} disabled={hasVoted}>
+      <div className={styles.root}>
+        <button
+          onClick={thumbsUp}
+          className={`${styles.vote} ${didUpVote && styles.active}`}
+        >
           👍
         </button>
-        <p>{document.score || 0}</p>
-        <button onClick={thumbsDown} disabled={hasVoted}>
+        <p className={styles.score}>{document.score || 0}</p>
+        <button
+          onClick={thumbsDown}
+          className={`${styles.vote} ${didDownVote && styles.active}`}
+        >
           👎
         </button>
       </div>

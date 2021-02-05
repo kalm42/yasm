@@ -1,0 +1,5 @@
+.write {
+  display: grid;
+  grid-template-columns: 1fr calc(8vmin);
+  gap: calc(4vmin);
+}

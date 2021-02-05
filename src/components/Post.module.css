@@ -1,0 +1,58 @@
+.root {
+  background: var(--light-background);
+  padding: calc(4vmin);
+  margin: calc(4vmin) 0;
+  border-radius: calc(2vmin);
+}
+
+.header {
+  display: grid;
+  grid-template-columns: calc(8vmin) 1fr calc(8vmin);
+  gap: calc(4vmin);
+  padding-bottom: calc(4vmin);
+}
+
+.post {
+}
+
+.author {
+  & p {
+    font-size: 0.8rem;
+    margin: 0;
+  }
+}
+
+.toolbar {
+  display: flex;
+  list-style: none;
+  gap: calc(4vmin);
+  margin: 0;
+  padding: 0;
+  justify-items: center;
+  align-items: center;
+}
+
+.tool {
+}
+
+.name {
+  padding-bottom: calc(1vmin);
+}
+
+.time {
+  color: var(--text-dark);
+}
+
+.options {
+  background: none;
+  border: none;
+  color: var(--text-dark);
+}
+
+.icon {
+  font-size: calc(5vmin);
+}
+
+.fieldset {
+  border: none;
+}

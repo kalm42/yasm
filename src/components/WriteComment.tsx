@@ -1,8 +1,11 @@
+import { faCommentDots } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as Sentry from "@sentry/react";
 import { useState } from "react";
 import { useUser } from "../context";
 import { CommentType, PostType } from "../models";
 import { writeComment } from "../services/firebase";
+import styles from "./WriteComment.module.css";
 
 interface Props {
   post: PostType;
@@ -43,10 +46,13 @@ const WriteComment = (props: Props) => {
         </form>
       ) : (
         <>
-          <button onClick={() => setIsCommenting(true)}>comment</button>
-          <p>
-            ({parentComment ? parentComment.commentCount : post.commentCount})
-          </p>
+          <button
+            onClick={() => setIsCommenting(true)}
+            className={styles.button}
+          >
+            <FontAwesomeIcon icon={faCommentDots} className={styles.icon} />{" "}
+            {parentComment ? parentComment.commentCount : post.commentCount}
+          </button>
         </>
       )}
     </Sentry.ErrorBoundary>
