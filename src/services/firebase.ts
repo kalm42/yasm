@@ -288,15 +288,20 @@ function aggregatePosts(query: QuerySnapshot) {
 /**
  * Returns an array of posts from the users that the current user is following.
  * @param followedUserIds Array of user ids the current user follows
+ * @param setState The set state functiont to update the component
  */
-export function getMyFeed(followedUserIds: string[]) {
+export function getMyFeed(
+  followedUserIds: string[],
+  setState: (posts: PostType[]) => void
+) {
   return firestore
     .collection("posts")
     .where("authorId", "in", followedUserIds)
     .orderBy("createdAt", "desc")
     .limit(25)
-    .get()
-    .then(aggregatePosts);
+    .onSnapshot((querySnapshot) => {
+      setState(aggregatePosts(querySnapshot));
+    });
 }
 
 /**
@@ -379,6 +384,25 @@ export function decrementScore(doc: PostType | CommentType, user: UserType) {
 }
 
 /**
+ * Reduces the score of a post or a comment by 1
+ * @param doc Either a post or a comment
+ * @param user The current user
+ */
+export function undecrementScore(doc: PostType | CommentType, user: UserType) {
+  const updateScore = doc._ref.ref.set(
+    { score: doc.score + 1 },
+    { merge: true }
+  );
+  const recordInteraction = firestore
+    .doc(`interactions/${user._id}_${doc._id}`)
+    .update({
+      vote: firebase.firestore.FieldValue.delete(),
+    });
+
+  return Promise.all([updateScore, recordInteraction]);
+}
+
+/**
  * Increases the score of a post or a comment by 1
  * @param doc Either a post or a comment
  * @param user The current user
@@ -401,23 +425,40 @@ export function incrementScore(doc: PostType | CommentType, user: UserType) {
 }
 
 /**
+ * Increases the score of a post or a comment by 1
+ * @param doc Either a post or a comment
+ * @param user The current user
+ */
+export function unincrementScore(doc: PostType | CommentType, user: UserType) {
+  const updateScore = doc._ref.ref.set(
+    { score: doc.score - 1 },
+    { merge: true }
+  );
+  const recordInteraction = firestore
+    .doc(`interactions/${user._id}_${doc._id}`)
+    .update({ vote: firebase.firestore.FieldValue.delete() });
+  return Promise.all([updateScore, recordInteraction]);
+}
+
+/**
  * Returns any interactions the current user has had with the comment or post.
  * @param doc Either post or comment
  * @param user Current user
+ * @param setState The set state functiont to update the component
  */
 export function getInteractionWith(
   doc: PostType | CommentType,
-  user: UserType
+  user: UserType,
+  setState: (interaction: InteractionType) => void
 ) {
   return firestore
     .doc(`interactions/${user._id}_${doc._id}`)
-    .get()
-    .then((d) => {
-      const interaction = d.data() as InteractionType;
+    .onSnapshot((docSnap) => {
+      const interaction = docSnap.data() as InteractionType;
       if (!interaction) return null;
-      interaction._id = d.id;
-      interaction._ref = d;
-      return interaction;
+      interaction._id = docSnap.id;
+      interaction._ref = docSnap;
+      setState(interaction);
     });
 }
 
@@ -491,14 +532,16 @@ export function fileReport(
 
 /**
  * Returns a feed not filtered by followers
+ * @param setState The set state functiont to update the component
  */
-export function getAnonFeed() {
+export function getAnonFeed(setState: (posts: PostType[]) => void) {
   return firestore
     .collection("posts")
     .orderBy("createdAt", "desc")
     .limit(25)
-    .get()
-    .then(aggregatePosts);
+    .onSnapshot((querSnapshot) => {
+      setState(aggregatePosts(querSnapshot));
+    });
 }
 
 /**

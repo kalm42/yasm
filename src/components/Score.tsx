@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
-import { CommentType, PostType } from "../models";
+import { CommentType, InteractionType, PostType } from "../models";
 import {
   decrementScore,
+  undecrementScore,
   getInteractionWith,
   incrementScore,
+  unincrementScore,
 } from "../services/firebase";
 import styles from "./Score.module.css";
 
@@ -15,41 +17,41 @@ interface Props {
 
 const Score = (props: Props) => {
   const { document } = props;
-  const [didUpVote, setDidUpVote] = useState(false);
-  const [didDownVote, setDidDownVote] = useState(false);
+  const [interaction, setInteraction] = useState<InteractionType | null>(null);
   const { user } = useUser();
+  const didUpVote = interaction?.vote !== undefined && interaction.vote;
+  const didDownVote = interaction?.vote !== undefined && !interaction.vote;
 
   const thumbsUp = () => {
-    if (!user) return;
-    incrementScore(document, user);
-    setDidUpVote(true);
+    if (!user || !interaction) return;
+    if (interaction.vote) {
+      unincrementScore(document, user);
+    } else {
+      incrementScore(document, user);
+    }
   };
   const thumbsDown = () => {
-    if (!user) return;
-    decrementScore(document, user);
-    setDidDownVote(true);
+    if (!user || !interaction) return;
+    if (!interaction.vote) {
+      undecrementScore(document, user);
+    } else {
+      decrementScore(document, user);
+    }
   };
 
   useEffect(() => {
+    let unsubscribe: () => void | undefined;
     const checkForInteraction = async () => {
       console.log("Score:checkForInteraction");
       if (!user) return;
-      getInteractionWith(document, user)
-        .then((inter) => {
-          if (inter?.vote !== undefined) {
-            if (inter.vote) {
-              setDidUpVote(true);
-            } else {
-              setDidDownVote(true);
-            }
-          }
-        })
-        .catch(() => {
-          // throws an error if the document doesn't exist. This is here to
-          // swallow the error.
-        });
+      unsubscribe = getInteractionWith(document, user, setInteraction);
     };
     checkForInteraction();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [user, document]);
 
   return (

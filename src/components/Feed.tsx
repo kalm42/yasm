@@ -12,12 +12,13 @@ const Feed = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
+    let unsubscribe: () => void | undefined;
     const fetchFollows = async () => {
       console.log("running... Feed:fetchFollows");
       setIsLoading(true);
       if (!user) return;
       try {
-        setPosts(await getMyFeed(await getFollowers(user._id)));
+        unsubscribe = await getMyFeed(await getFollowers(user._id), setPosts);
       } catch (error) {
         console.warn("Feed:fetchFollows", error.message);
       }
@@ -27,7 +28,7 @@ const Feed = () => {
       console.log("Feed:fetchAnon");
       setIsLoading(true);
       try {
-        setPosts(await getAnonFeed());
+        unsubscribe = await getAnonFeed(setPosts);
       } catch (error) {
         console.warn("Feed:fetchAnon", error.message);
       }
@@ -38,6 +39,12 @@ const Feed = () => {
     } else {
       fetchAnon();
     }
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [user]);
   return (
     <Sentry.ErrorBoundary fallback={FallbackFeed}>

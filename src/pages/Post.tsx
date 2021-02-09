@@ -51,17 +51,23 @@ const Post = () => {
 
   // fetch interactions
   useEffect(() => {
+    let unsubscribe: () => void | undefined;
     const getInteractions = async () => {
       console.log("page Post:getInteractions");
       if (!user || !post) return;
       try {
-        setInteractions(await getInteractionWith(post, user));
+        unsubscribe = getInteractionWith(post, user, setInteractions);
       } catch (error) {
         // getInteractionWith throws an error if the document doesn't exist
         // this is here to swallow that error.
       }
     };
     getInteractions();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [post, user]);
 
   if (!post) return null;

@@ -9,29 +9,12 @@ import { useUser } from "../context";
 import styles from "./Post.module.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisH } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 
 const Post = (props: PostType) => {
   const { authorId, text } = props;
-  // const [interactions, setInteractions] = useState<InteractionType | null>(
-  //   null
-  // );
   const [author, setAuthor] = useState<UserType | null>(null);
   const { user } = useUser();
-
-  // get if the user has interacted with the post.
-  // useEffect(() => {
-  //   const getInteractions = async () => {
-  //     console.log("Post:getInteractions");
-  //     if (!props || !user) return;
-  //     try {
-  //       setInteractions(await getInteractionWith(props, user));
-  //     } catch (error) {
-  //       // getInteractionWith throws an error if the document doesn't exist
-  //       // this is here to swallow that error.
-  //     }
-  //   };
-  //   getInteractions();
-  // }, [user, props]);
 
   // get author's data
   useEffect(() => {
@@ -60,7 +43,7 @@ const Post = (props: PostType) => {
           <button className={styles.options}>
             <FontAwesomeIcon icon={faEllipsisH} className={styles.icon} />
             {/* 
-              shove these in the options
+              // TODO: shove these in the options
               <li className={styles.tool}>
                 <Bookmark post={props} interaction={interactions} />
               </li>
@@ -70,10 +53,11 @@ const Post = (props: PostType) => {
             */}
           </button>
         </header>
-        <div className={styles.post}>
-          <p>{text}</p>
-          {/* <Link to={`/post/${_id}`}>View post</Link> */}
-        </div>
+        <Link to={`/post/${props._id}`} className={styles.link}>
+          <div className={styles.post}>
+            <p>{text}</p>
+          </div>
+        </Link>
         <footer>
           <fieldset disabled={!user} className={styles.fieldset}>
             <ul className={styles.toolbar}>
