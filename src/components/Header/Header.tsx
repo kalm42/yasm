@@ -1,9 +1,9 @@
 import { faArrowLeft, faEllipsisH } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useHistory } from "react-router-dom";
-import { UserType } from "../models";
+import { UserType } from "../../models";
 import styles from "./Header.module.css";
-import ProfileImage from "./ProfileImage";
+import ProfileImage from "../ProfileImage";
 
 interface Props {
   author: UserType | null;

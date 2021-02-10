@@ -1,12 +1,12 @@
 import * as Sentry from "@sentry/react";
-import { PostType, UserType } from "../models";
-import { getUserWithId } from "../services/firebase";
+import { PostType, UserType } from "../../models";
+import { getUserWithId } from "../../services/firebase";
 import { useEffect, useState } from "react";
-import { useUser } from "../context";
+import { useUser } from "../../context";
 import styles from "./Post.module.css";
 import { Link } from "react-router-dom";
-import Header from "./Header";
-import Footer from "./Footer";
+import Header from "../Header";
+import Footer from "../Footer";
 
 const Post = (props: PostType) => {
   const { authorId, text } = props;

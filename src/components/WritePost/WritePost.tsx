@@ -3,9 +3,9 @@ import * as Sentry from "@sentry/react";
 import firebase from "firebase/app";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleUp } from "@fortawesome/free-solid-svg-icons";
-import { firestore } from "../services/firebase";
-import { useUser } from "../context";
-import { UserType } from "../models";
+import { firestore } from "../../services/firebase";
+import { useUser } from "../../context";
+import { UserType } from "../../models";
 import styles from "./WritePost.module.css";
 
 const WritePost = () => {

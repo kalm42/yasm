@@ -1,7 +1,7 @@
-import Score from "./Score";
+import Score from "../Score";
 import styles from "./Footer.module.css";
-import { CommentType, PostType } from "../models";
-import WriteComment from "./WriteComment";
+import { CommentType, PostType } from "../../models";
+import WriteComment from "../WriteComment";
 
 interface Props {
   disabled: boolean;

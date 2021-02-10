@@ -1,7 +1,7 @@
 import React, { ReactNode } from "react";
 import * as Sentry from "@sentry/react";
 import { NavLink } from "react-router-dom";
-import { useUser } from "../context";
+import { useUser } from "../../context";
 import styles from "./Layout.module.css";
 
 interface Props {

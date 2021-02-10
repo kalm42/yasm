@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
-import { useUser } from "../context";
-import { CommentType, InteractionType, PostType } from "../models";
+import { useUser } from "../../context";
+import { CommentType, InteractionType, PostType } from "../../models";
 import {
   decrementScore,
   undecrementScore,
@@ -10,7 +10,7 @@ import {
   unincrementScore,
   switchDownVoteToUpVote,
   switchUpVoteToDownVote,
-} from "../services/firebase";
+} from "../../services/firebase";
 import styles from "./Score.module.css";
 
 interface Props {

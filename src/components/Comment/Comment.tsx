@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
-import { useUser } from "../context";
-import { CommentType, PostType, UserType } from "../models";
-import { getUserWithId, subscribeToReplies } from "../services/firebase";
+import { useUser } from "../../context";
+import { CommentType, PostType, UserType } from "../../models";
+import { getUserWithId, subscribeToReplies } from "../../services/firebase";
 import styles from "./Comment.module.css";
-import Header from "./Header";
-import Footer from "./Footer";
+import Header from "../Header";
+import Footer from "../Footer";
 
 interface Props {
   comment: CommentType;
