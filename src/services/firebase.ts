@@ -214,6 +214,21 @@ function aggregateComments(query: QuerySnapshot) {
   return commentCollection;
 }
 
+export function subscribeToComments(
+  postId: string,
+  level: number = 0,
+  setState: (comments: CommentType[]) => void
+) {
+  return firestore
+    .collection(`posts/${postId}/comments`)
+    .where("level", "==", level)
+    .orderBy("createdAt", "desc")
+    .limit(10)
+    .onSnapshot((querySnapshot) => {
+      setState(aggregateComments(querySnapshot));
+    });
+}
+
 /**
  * Returns the latest 25 top level comments on a post.
  * @param postId The document id of the post
@@ -227,6 +242,23 @@ export function getCommentsForPost(postId: string, level: number = 0) {
     .limit(25)
     .get()
     .then(aggregateComments);
+}
+
+export function subscribeToReplies(
+  setState: (T: CommentType[]) => void,
+  postId: string,
+  commentId: string,
+  level: number = 1
+) {
+  return firestore
+    .collection(`/posts/${postId}/comments`)
+    .where("level", "==", level)
+    .where("parentId", "==", commentId)
+    .orderBy("createdAt", "desc")
+    .limit(10)
+    .onSnapshot((querySnapshot) => {
+      setState(aggregateComments(querySnapshot));
+    });
 }
 
 /**
@@ -402,6 +434,21 @@ export function undecrementScore(doc: PostType | CommentType, user: UserType) {
   return Promise.all([updateScore, recordInteraction]);
 }
 
+export function switchDownVoteToUpVote(
+  doc: PostType | CommentType,
+  user: UserType
+) {
+  // update document's score
+  const updateScore = doc._ref.ref.update({ score: doc.score + 2 });
+
+  // update interaction
+  const recordInteraction = firestore
+    .doc(`interactions/${user._id}_${doc._id}`)
+    .update({ vote: true });
+
+  return Promise.all([updateScore, recordInteraction]);
+}
+
 /**
  * Increases the score of a post or a comment by 1
  * @param doc Either a post or a comment
@@ -437,6 +484,21 @@ export function unincrementScore(doc: PostType | CommentType, user: UserType) {
   const recordInteraction = firestore
     .doc(`interactions/${user._id}_${doc._id}`)
     .update({ vote: firebase.firestore.FieldValue.delete() });
+  return Promise.all([updateScore, recordInteraction]);
+}
+
+export function switchUpVoteToDownVote(
+  doc: PostType | CommentType,
+  user: UserType
+) {
+  // update document's score
+  const updateScore = doc._ref.ref.update({ score: doc.score - 2 });
+
+  // update interaction
+  const recordInteraction = firestore
+    .doc(`interactions/${user._id}_${doc._id}`)
+    .update({ vote: false });
+
   return Promise.all([updateScore, recordInteraction]);
 }
 

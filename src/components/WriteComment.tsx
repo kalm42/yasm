@@ -1,4 +1,7 @@
-import { faCommentDots } from "@fortawesome/free-solid-svg-icons";
+import {
+  faArrowCircleUp,
+  faCommentDots,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as Sentry from "@sentry/react";
 import { useState } from "react";
@@ -22,27 +25,32 @@ const WriteComment = (props: Props) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user) return;
-    if (parentComment) {
+    try {
       writeComment(user, post, comment, parentComment);
-    } else {
-      writeComment(user, post, comment, undefined);
+      setComment("");
+    } catch (error) {
+      console.warn(`WriteComment:handleSubmit => ${error.message}`);
     }
-    setIsCommenting(false);
-    setComment("");
   };
   return (
     <Sentry.ErrorBoundary fallback={FallbackWriteComment}>
       {isCommenting ? (
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="comment">Comment*:</label>
+        <form onSubmit={handleSubmit} className={styles.form}>
           <input
             type="text"
             name="comment"
+            placeholder="Write a comment ..."
             required
             value={comment}
             onChange={handleChange}
+            className={styles.input}
           />
-          <button type="submit">✍️</button>
+          <button type="submit" className={styles.submit}>
+            <FontAwesomeIcon
+              icon={faArrowCircleUp}
+              className={styles.submitIcon}
+            />
+          </button>
         </form>
       ) : (
         <>
@@ -50,7 +58,10 @@ const WriteComment = (props: Props) => {
             onClick={() => setIsCommenting(true)}
             className={styles.button}
           >
-            <FontAwesomeIcon icon={faCommentDots} className={styles.icon} />{" "}
+            <FontAwesomeIcon
+              icon={faCommentDots}
+              className={styles.commentIcon}
+            />{" "}
             {parentComment ? parentComment.commentCount : post.commentCount}
           </button>
         </>

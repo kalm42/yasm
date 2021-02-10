@@ -1,0 +1,43 @@
+.icon {
+  font-size: calc(5vmin);
+}
+
+.name {
+  padding-bottom: calc(1vmin);
+}
+
+.time {
+  color: var(--text-dark);
+}
+
+.fullHeader {
+  grid-template-columns: calc(8vmin) calc(8vmin) 1fr calc(9vmin);
+}
+
+.partialHeader {
+  grid-template-columns: calc(8vmin) 1fr calc(9vmin);
+}
+
+.header {
+  display: grid;
+  align-items: center;
+  gap: calc(4vmin);
+  padding-bottom: calc(4vmin);
+
+  & p {
+    margin: calc(1vmin) 0;
+  }
+}
+
+.button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1rem;
+}
+
+.options {
+  background: none;
+  border: none;
+  color: var(--text-dark);
+}

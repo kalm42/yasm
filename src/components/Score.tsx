@@ -8,6 +8,8 @@ import {
   getInteractionWith,
   incrementScore,
   unincrementScore,
+  switchDownVoteToUpVote,
+  switchUpVoteToDownVote,
 } from "../services/firebase";
 import styles from "./Score.module.css";
 
@@ -23,19 +25,39 @@ const Score = (props: Props) => {
   const didDownVote = interaction?.vote !== undefined && !interaction.vote;
 
   const thumbsUp = () => {
-    if (!user || !interaction) return;
-    if (interaction.vote) {
-      unincrementScore(document, user);
-    } else {
-      incrementScore(document, user);
+    if (!user) return;
+    switch (interaction?.vote) {
+      case true:
+        // did up vote
+        unincrementScore(document, user);
+        break;
+      case false:
+        // did down vote
+        switchDownVoteToUpVote(document, user);
+        break;
+
+      default:
+        // has not voted
+        incrementScore(document, user);
+        break;
     }
   };
   const thumbsDown = () => {
-    if (!user || !interaction) return;
-    if (!interaction.vote) {
-      undecrementScore(document, user);
-    } else {
-      decrementScore(document, user);
+    if (!user) return;
+    switch (interaction?.vote) {
+      case true:
+        // already up voted
+        switchUpVoteToDownVote(document, user);
+        break;
+      case false:
+        // already down voted
+        undecrementScore(document, user);
+        break;
+
+      default:
+        // has not voted
+        decrementScore(document, user);
+        break;
     }
   };
 

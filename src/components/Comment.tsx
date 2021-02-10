@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
 import { CommentType, PostType, UserType } from "../models";
-import { getRepliesToComment, getUserWithId } from "../services/firebase";
-import Report from "./Report";
-import Score from "./Score";
-import WriteComment from "./WriteComment";
+import { getUserWithId, subscribeToReplies } from "../services/firebase";
+import styles from "./Comment.module.css";
+import Header from "./Header";
+import Footer from "./Footer";
 
 interface Props {
   comment: CommentType;
@@ -16,11 +16,15 @@ const Comment = (props: Props) => {
   const [comments, setComments] = useState<CommentType[] | null>(null);
   const [author, setAuthor] = useState<UserType | null>(null);
   const { user } = useUser();
+  let unsubscribe: (() => void) | null = null;
 
   const getReplies = async () => {
     try {
-      setComments(
-        await getRepliesToComment(post._id, comment._id, comment.level + 1)
+      unsubscribe = subscribeToReplies(
+        setComments,
+        post._id,
+        comment._id,
+        comment.level + 1
       );
     } catch (error) {
       console.warn("Comment:getReplies", error.message);
@@ -39,44 +43,33 @@ const Comment = (props: Props) => {
     getAuthor();
   }, [comment]);
 
+  useEffect(() => {
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [unsubscribe]);
+
   return (
     <Sentry.ErrorBoundary fallback={FallbackComment}>
-      <section style={{ border: "1px solid black", padding: "calc(1vmin)" }}>
-        <div style={{ display: "flex", gap: "calc(1vmin)" }}>
-          <p>
-            {author?.name} at {comment.createdAt.toDate().toDateString()}
-          </p>
-          <div>
-            <p>{comment.text}</p>
-            <fieldset disabled={!user}>
-              <ul
-                style={{
-                  display: "flex",
-                  listStyle: "none",
-                  padding: 0,
-                  margin: 0,
-                  gap: "calc(1vmin)",
-                }}
-              >
-                <li>
-                  <Score document={comment} />
-                </li>
-                <li>
-                  <Report document={comment} />
-                </li>
-                <li>
-                  <WriteComment post={post} parentComment={comment} />
-                </li>
-              </ul>
-              {!user && <p>To interact with a comment please login.</p>}
-            </fieldset>
-          </div>
-        </div>
-        <section style={{ padding: "calc(1vmin)", border: "1px solid black" }}>
-          <button onClick={getReplies}>View the latest 10 of n replies.</button>
-          {comments?.map((reply) => (
-            <Comment comment={reply} post={post} key={reply._id} />
-          ))}
+      <section className={styles.root}>
+        <Header author={author} />
+        <p>{comment.text}</p>
+        <Footer disabled={!user} post={post} comment={comment} />
+        <section>
+          {!!comment.commentCount && (
+            <>
+              <button onClick={getReplies} className={styles.next}>
+                View the latest{" "}
+                {comment.commentCount > 10 ? "10" : comment.commentCount} of{" "}
+                {comment.commentCount} replies.
+              </button>
+              {comments?.map((reply) => (
+                <Comment comment={reply} post={post} key={reply._id} />
+              ))}
+            </>
+          )}
         </section>
       </section>
     </Sentry.ErrorBoundary>

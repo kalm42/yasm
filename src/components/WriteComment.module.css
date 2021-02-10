@@ -3,5 +3,36 @@
   border: none;
   color: white;
 }
-.icon {
+
+.form {
+  background: var(--light-background);
+  border-radius: calc(6vmin);
+  padding: calc(2vmin) calc(5vmin);
+  display: flex;
+}
+
+.input {
+  background: none;
+  border: none;
+  flex: 1;
+  color: white;
+}
+
+.submit {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0 calc(-3vmin) 0 0;
+  background-image: var(--accent);
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.submitIcon {
+  color: var(--accent-start);
+  font-size: calc(7vmin);
+}
+
+.commentIcon {
 }

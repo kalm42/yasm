@@ -1,28 +1,20 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
-import Bookmark from "../components/Bookmark";
 import Comments from "../components/Comments";
-import ProfileImage from "../components/ProfileImage";
-import Report from "../components/Report";
-import Score from "../components/Score";
 import { useUser } from "../context";
-import { InteractionType, PostType, UserType } from "../models";
-import {
-  getInteractionWith,
-  getPostByDocId,
-  getUserWithId,
-} from "../services/firebase";
+import { PostType, UserType } from "../models";
+import { getPostByDocId, getUserWithId } from "../services/firebase";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const Post = () => {
   const params = useParams<{ id: string }>();
   const { user } = useUser();
   const [post, setPost] = useState<PostType | null>(null);
   const [author, setAuthor] = useState<UserType | null>(null);
-  const [interactions, setInteractions] = useState<InteractionType | null>(
-    null
-  );
 
+  // Get the post
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -35,7 +27,7 @@ const Post = () => {
     fetchPost();
   }, [params]);
 
-  // fetch post author details
+  // Get the
   useEffect(() => {
     const getAuthor = async () => {
       console.log("page Post:getAuthor");
@@ -49,48 +41,20 @@ const Post = () => {
     getAuthor();
   }, [post]);
 
-  // fetch interactions
-  useEffect(() => {
-    let unsubscribe: () => void | undefined;
-    const getInteractions = async () => {
-      console.log("page Post:getInteractions");
-      if (!user || !post) return;
-      try {
-        unsubscribe = getInteractionWith(post, user, setInteractions);
-      } catch (error) {
-        // getInteractionWith throws an error if the document doesn't exist
-        // this is here to swallow that error.
-      }
-    };
-    getInteractions();
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [post, user]);
-
   if (!post) return null;
 
   return (
     <Sentry.ErrorBoundary fallback={FallbackPost}>
       <div>
-        <div>
-          <ProfileImage url={author?.profileImage} userAt={author?.at} />
-          <p>
-            {author?.name} - @{author?.at}
-          </p>
-        </div>
-        <article>{post.text}</article>
-        <div>
-          <fieldset disabled={!user}>
-            <Score document={post} />
-            <Bookmark post={post} interaction={interactions} />
-            <Report document={post} />
-            {!user && <p>To interact with a post please login.</p>}
-          </fieldset>
-        </div>
-        <Comments post={post} />
+        <article>
+          <Header author={author} back />
+          <p>{post.text}</p>
+          <Footer disabled={!user} post={post} />
+        </article>
+        {!user && <p>To interact with a post please login.</p>}
+        <section>
+          <Comments post={post} />
+        </section>
       </div>
     </Sentry.ErrorBoundary>
   );
