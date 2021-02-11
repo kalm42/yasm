@@ -17,7 +17,7 @@
 
 .author {
   & p {
-    font-size: 0.8rem;
+    font-size: calc(3.4vmin);
     margin: 0;
   }
 }

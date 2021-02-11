@@ -10,7 +10,7 @@
   background: none;
   border: none;
   color: var(--text-dark);
-  font-size: 0.76rem;
+  font-size: calc(3.23vmin);
   font-weight: bold;
   padding-top: calc(2vmin);
 }

@@ -6,7 +6,7 @@
   align-items: center;
 
   & p {
-    font-size: 0.8rem;
+    font-size: calc(3.4vmin);
     margin: calc(1vmin) 0;
   }
 }
@@ -26,5 +26,5 @@
   background: none;
   border: none;
   color: white;
-  font-size: 1rem;
+  font-size: calc(4.25vmin);
 }
