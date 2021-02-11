@@ -11,7 +11,7 @@
 .nav {
   display: block;
   position: fixed;
-  bottom: 0;
+  bottom: -1px;
   left: 0;
   background: var(--background);
   right: 0;

@@ -81,6 +81,19 @@ export function getUserWithId(id: string): Promise<UserType> {
     });
 }
 
+export function subscribeToUserWithId(
+  setState: (T: UserType) => void,
+  id: string
+) {
+  firestore.doc(`users/${id}`).onSnapshot((snapshot) => {
+    if (!snapshot.exists) throw new Error("No user found");
+    const user = snapshot.data() as UserType;
+    user._id = snapshot.id;
+    user._ref = snapshot;
+    setState(user);
+  });
+}
+
 /**
  * Sets a relationship between two users
  * @param follower User that is following
@@ -322,7 +335,7 @@ function aggregatePosts(query: QuerySnapshot) {
  * @param followedUserIds Array of user ids the current user follows
  * @param setState The set state functiont to update the component
  */
-export function getMyFeed(
+export function subscribeToMyFeed(
   followedUserIds: string[],
   setState: (posts: PostType[]) => void
 ) {
@@ -389,6 +402,28 @@ export function getUserWithTheirAt(at: string) {
       if (!user) throw new Error(`No user found with the at ${at}`);
 
       return user;
+    });
+}
+
+export function subscribeToUserWithTheirAt(
+  setState: (T: UserType) => void,
+  at: string
+) {
+  firestore
+    .collection("users")
+    .where("at", "==", at)
+    .limit(1)
+    .onSnapshot((querySnapshot) => {
+      let user: UserType | undefined;
+      querySnapshot.forEach((doc) => {
+        user = doc.data() as UserType;
+        user._id = doc.id;
+        user._ref = doc;
+      });
+
+      if (!user) throw new Error(`No user found with the at ${at}`);
+
+      setState(user);
     });
 }
 
@@ -508,7 +543,7 @@ export function switchUpVoteToDownVote(
  * @param user Current user
  * @param setState The set state functiont to update the component
  */
-export function getInteractionWith(
+export function subscribeToInteractionWith(
   doc: PostType | CommentType,
   user: UserType,
   setState: (interaction: InteractionType) => void
@@ -596,7 +631,7 @@ export function fileReport(
  * Returns a feed not filtered by followers
  * @param setState The set state functiont to update the component
  */
-export function getAnonFeed(setState: (posts: PostType[]) => void) {
+export function subscribeToAnonFeed(setState: (posts: PostType[]) => void) {
   return firestore
     .collection("posts")
     .orderBy("createdAt", "desc")
@@ -665,4 +700,54 @@ export function updateNotifications(notifications: NotificationType[]) {
     batch.update(notification._ref.ref, { hasRead: true });
   });
   batch.commit();
+}
+
+export function updateUser(
+  userId: string,
+  name: string,
+  at: string
+): Promise<void> {
+  // make sure no other user has the at
+  return new Promise((resolve, reject) => {
+    firestore
+      .collection("users")
+      .where("at", "==", at)
+      .limit(1)
+      .get()
+      .then((query) => {
+        let isUnique = true;
+        query.forEach((doc) => {
+          if (isUnique && doc.exists) {
+            isUnique = false;
+          }
+        });
+        return isUnique;
+      })
+      .then((isUnique) => {
+        if (!isUnique) reject({ message: "Your at is not unique" });
+        firestore
+          .doc(`users/${userId}`)
+          .update({
+            name,
+            at,
+          })
+          .then(() => resolve())
+          .catch((error) => reject(error));
+      });
+  });
+}
+
+export function atIsUnique(at: string) {
+  return firestore
+    .collection("users")
+    .where("at", "==", at)
+    .limit(1)
+    .get()
+    .then((doc) => {
+      let exists = false;
+      doc.forEach((d) => {
+        if (!exists) exists = true;
+      });
+      return !exists;
+    });
 }

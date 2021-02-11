@@ -1,3 +1,4 @@
+import React from "react";
 import * as Sentry from "@sentry/react";
 import { PostType, UserType } from "../../models";
 import { getUserWithId } from "../../services/firebase";
@@ -53,4 +54,4 @@ function FallbackPost() {
   );
 }
 
-export default Post;
+export default React.memo(Post);

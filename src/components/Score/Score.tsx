@@ -5,11 +5,11 @@ import { CommentType, InteractionType, PostType } from "../../models";
 import {
   decrementScore,
   undecrementScore,
-  getInteractionWith,
   incrementScore,
   unincrementScore,
   switchDownVoteToUpVote,
   switchUpVoteToDownVote,
+  subscribeToInteractionWith,
 } from "../../services/firebase";
 import styles from "./Score.module.css";
 
@@ -66,7 +66,7 @@ const Score = (props: Props) => {
     const checkForInteraction = async () => {
       console.log("Score:checkForInteraction");
       if (!user) return;
-      unsubscribe = getInteractionWith(document, user, setInteraction);
+      unsubscribe = subscribeToInteractionWith(document, user, setInteraction);
     };
     checkForInteraction();
     return () => {

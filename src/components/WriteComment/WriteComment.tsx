@@ -1,13 +1,11 @@
-import {
-  faArrowCircleUp,
-  faCommentDots,
-} from "@fortawesome/free-solid-svg-icons";
+import { faCommentDots } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as Sentry from "@sentry/react";
 import { useState } from "react";
 import { useUser } from "../../context";
 import { CommentType, PostType } from "../../models";
 import { writeComment } from "../../services/firebase";
+import Form from "../Form";
 import styles from "./WriteComment.module.css";
 
 interface Props {
@@ -35,23 +33,13 @@ const WriteComment = (props: Props) => {
   return (
     <Sentry.ErrorBoundary fallback={FallbackWriteComment}>
       {isCommenting ? (
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <input
-            type="text"
-            name="comment"
-            placeholder="Write a comment ..."
-            required
-            value={comment}
-            onChange={handleChange}
-            className={styles.input}
-          />
-          <button type="submit" className={styles.submit}>
-            <FontAwesomeIcon
-              icon={faArrowCircleUp}
-              className={styles.submitIcon}
-            />
-          </button>
-        </form>
+        <Form
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          name="comment"
+          placeholder="Write a comment ..."
+          value={comment}
+        />
       ) : (
         <>
           <button
