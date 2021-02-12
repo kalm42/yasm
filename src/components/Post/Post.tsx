@@ -8,11 +8,14 @@ import styles from "./Post.module.css";
 import { Link } from "react-router-dom";
 import Header from "../Header";
 import Footer from "../Footer";
+import moment from "moment";
 
 const Post = (props: PostType) => {
   const { authorId, text } = props;
   const [author, setAuthor] = useState<UserType | null>(null);
   const { user } = useUser();
+  const d = props.createdAt.toDate();
+  const time = moment(d).fromNow();
 
   // get author's data
   useEffect(() => {
@@ -30,7 +33,7 @@ const Post = (props: PostType) => {
   return (
     <Sentry.ErrorBoundary fallback={FallbackPost}>
       <article className={styles.root}>
-        <Header author={author} />
+        <Header author={author} time={time} />
         <Link to={`/post/${props._id}`} className={styles.link}>
           <div className={styles.post}>
             <p>{text}</p>

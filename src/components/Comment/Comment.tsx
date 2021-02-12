@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import moment from "moment";
 import * as Sentry from "@sentry/react";
 import { useUser } from "../../context";
 import { CommentType, PostType, UserType } from "../../models";
@@ -54,7 +55,10 @@ const Comment = (props: Props) => {
   return (
     <Sentry.ErrorBoundary fallback={FallbackComment}>
       <section className={styles.root}>
-        <Header author={author} />
+        <Header
+          author={author}
+          time={moment(comment.createdAt.toDate()).fromNow()}
+        />
         <p>{comment.text}</p>
         <Footer disabled={!user} post={post} comment={comment} />
         <section>

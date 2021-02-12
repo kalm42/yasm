@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import * as Sentry from "@sentry/react";
+import moment from "moment";
 import Comments from "../components/Comments";
 import { useUser } from "../context";
 import { PostType, UserType } from "../models";
@@ -47,7 +48,11 @@ const Post = () => {
     <Sentry.ErrorBoundary fallback={FallbackPost}>
       <div>
         <article>
-          <Header author={author} back />
+          <Header
+            author={author}
+            time={moment(post.createdAt.toDate()).fromNow()}
+            back
+          />
           <p>{post.text}</p>
           <Footer disabled={!user} post={post} />
         </article>
