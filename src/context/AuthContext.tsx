@@ -1,8 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import firebase from "firebase/app";
 import {
-  auth,
-  getUserWithId,
   loginWithGoogle,
   signOut,
   subscribeToAuth,
