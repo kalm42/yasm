@@ -1,20 +1,31 @@
-import InteractionType, { NewInteraction } from "./interactions";
+import InteractionType from "./interactions";
 import PostType from "./posts";
-import UserType from "./users";
-import CommentType, { NewComment } from "./comments";
+import UserType, { UserCallback } from "./users";
+import CommentType, { CommentsCallback } from "./comments";
 import FollowType from "./follows";
-import ReportType, { NewReport } from "./reports";
+import ReportType from "./reports";
 import NotificationType from "./notifications";
+import {
+  CommentDocument,
+  UserDocument,
+  ReportDocument,
+  InteractionDocument,
+  PostDocument,
+} from "./document-models";
 
 export type {
-  InteractionType,
-  NewInteraction,
-  PostType,
-  UserType,
+  CommentDocument,
   CommentType,
   FollowType,
-  NewComment,
-  ReportType,
-  NewReport,
+  InteractionType,
   NotificationType,
+  PostType,
+  PostDocument,
+  ReportType,
+  UserCallback,
+  UserDocument,
+  UserType,
+  CommentsCallback,
+  ReportDocument,
+  InteractionDocument,
 };

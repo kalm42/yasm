@@ -1,13 +1,7 @@
-import { DocumentReference, ServerTimestamp } from "../services/firebase";
+import { DocumentReference } from "../services/firebase";
+import { ReportDocument } from "./document-models";
 
-export interface NewReport {
-  text: string; // the complaint
-  reportedBy: string; // who made it
-  reported: string; // what was reported
-  createdAt: ServerTimestamp;
-}
-
-export default interface ReportType extends NewReport {
+export default interface ReportType extends ReportDocument {
   _id: string;
   _ref: DocumentReference;
 }

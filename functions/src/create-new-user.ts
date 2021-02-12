@@ -1,8 +1,7 @@
-/* eslint-disable-next-line no-unused-vars */
 import { UserRecord } from "firebase-functions/lib/providers/auth";
-/* eslint-disable-next-line no-unused-vars */
-import { User } from "./models";
+import { UserDocument } from "./models";
 import admin from "./firebase-admin";
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Sends the new user to firestore for saving
@@ -10,8 +9,13 @@ import admin from "./firebase-admin";
  */
 export default async function createNewUser(user: UserRecord): Promise<void> {
   const usersRef = admin.firestore().collection("users");
-  const newUser: User = {
+  const newUser: UserDocument = {
     id: "",
+    at: uuidv4(),
+    postCount: 0,
+    followingCount: 0,
+    followerCount: 0,
+    score: 0,
     name: user.displayName || user.email?.split("@")[0] || "",
     profileImage: user.photoURL || "",
     bio: "",
