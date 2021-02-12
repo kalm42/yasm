@@ -1,5 +1,10 @@
 .write {
   display: grid;
-  grid-template-columns: 1fr calc(8vmin);
+  grid-template-columns: 1fr calc(10.8vmin);
   gap: calc(4vmin);
+}
+
+.profile {
+  width: calc(10.8vmin);
+  clip-path: circle(calc(5.3vmin) at center);
 }

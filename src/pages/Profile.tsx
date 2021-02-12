@@ -4,7 +4,6 @@ import {
   atIsUnique,
   doesFollow,
   followUser,
-  getUserWithTheirAt,
   subscribeToMyFeed,
   subscribeToUserWithTheirAt,
   unfollowUser,

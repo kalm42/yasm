@@ -41,3 +41,8 @@
   border: none;
   color: var(--text-dark);
 }
+
+.link {
+  color: white;
+  text-decoration: none;
+}

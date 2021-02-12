@@ -1,6 +1,6 @@
 import { faArrowLeft, faEllipsisH } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { UserType } from "../../models";
 import styles from "./Header.module.css";
 import ProfileImage from "../ProfileImage";
@@ -8,10 +8,11 @@ import ProfileImage from "../ProfileImage";
 interface Props {
   author: UserType | null;
   back?: boolean;
+  time?: string;
 }
 
 const Header = (props: Props) => {
-  const { author, back } = props;
+  const { author, back, time } = props;
   const history = useHistory();
   return (
     <header
@@ -24,13 +25,17 @@ const Header = (props: Props) => {
           <FontAwesomeIcon icon={faArrowLeft} />
         </button>
       )}
-      <ProfileImage url={author?.profileImage} userAt={author?.at} />
-      <section>
-        <p className={styles.author}>
-          {author?.name} @{author?.at}
-        </p>
-        <p className={styles.time}>10 min ago</p>
-      </section>
+      <Link to={`/${author?.at}`} className={styles.link}>
+        <ProfileImage url={author?.profileImage} userAt={author?.at} />
+      </Link>
+      <Link to={`/${author?.at}`} className={styles.link}>
+        <section>
+          <p className={styles.author}>
+            {author?.name} @{author?.at}
+          </p>
+          <p className={styles.time}>{time}</p>
+        </section>
+      </Link>
       <button className={styles.options}>
         <FontAwesomeIcon icon={faEllipsisH} className={styles.icon} />
         {/* 
