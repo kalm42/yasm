@@ -6,6 +6,7 @@
 
 .vote {
   border: none;
+  font-size: var(--font-size);
   background-image: var(--text);
   background-clip: text;
   -webkit-text-fill-color: transparent;

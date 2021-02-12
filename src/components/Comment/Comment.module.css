@@ -1,6 +1,6 @@
 .root {
   border-left-color: var(--text-dark);
-  padding: calc(2vmin) calc(4vmin);
+  padding: calc(2vmin) 0 calc(2vmin) calc(4vmin);
   border-left-width: calc(1vmin);
   border-left-style: solid;
   margin: calc(4vmin) 0;

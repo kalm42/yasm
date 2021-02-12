@@ -7,6 +7,7 @@
   --alt-accent: linear-gradient(to right, #f54b64, #f78361);
   --accent-start: #f54b64;
   --accent-end: #f78361;
+  --font-size: calc(3.5vmin);
 }
 
 body {

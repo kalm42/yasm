@@ -210,16 +210,24 @@ const Profile = () => {
           </section>
           <section className={styles.stats}>
             <p className={styles.stat} style={{ alignItems: "flex-end" }}>
-              <span className={styles.detail}>491</span>
-              <span className={styles.title}>Posts</span>
+              <span className={styles["stat-wrapper"]}>
+                <span className={styles.detail}>{profile?.postCount ?? 0}</span>
+                <span className={styles.title}>Posts</span>
+              </span>
             </p>
             <p className={styles.stat}>
-              <span className={styles.detail}>1462</span>
+              <span className={styles.detail}>
+                {profile?.followingCount ?? 0}
+              </span>
               <span className={styles.title}>Following</span>
             </p>
             <p className={styles.stat} style={{ alignItems: "flex-start" }}>
-              <span className={styles.detail}>5233</span>
-              <span className={styles.title}>Followers</span>
+              <span className={styles["stat-wrapper"]}>
+                <span className={styles.detail}>
+                  {profile?.followerCount ?? 0}
+                </span>
+                <span className={styles.title}>Followers</span>
+              </span>
             </p>
           </section>
         </section>
