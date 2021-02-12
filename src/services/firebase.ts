@@ -748,6 +748,14 @@ export function updateUser(
   });
 }
 
+export function updateBio(userId: string, bio: string) {
+  return firestore.doc(`users/${userId}`).update({ bio });
+}
+
+export function updateLinks(userId: string, links: string[]) {
+  return firestore.doc(`users/${userId}`).update({ links });
+}
+
 export function atIsUnique(at: string) {
   return firestore
     .collection("users")

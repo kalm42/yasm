@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
-import { updateDocument } from "../services/firebase";
+import { updateLinks } from "../services/firebase";
 
 interface Props {
   links: string[];
@@ -22,9 +22,8 @@ const Links = (props: Props) => {
     event.preventDefault();
     if (!user) return;
     const newLinkList = [...dirtyLinks, link];
-    console.log({ newLinkList, link, dirtyLinks });
     setDirtyLinks(newLinkList);
-    updateDocument(`users/${user._id}`, { links: newLinkList });
+    updateLinks(user._id, newLinkList);
     setLink("");
     setAdd(false);
   };
@@ -38,13 +37,13 @@ const Links = (props: Props) => {
       return link;
     });
     setDirtyLinks(newLinkList);
-    return updateDocument(`users/${user._id}`, { links: newLinkList });
+    return updateLinks(user._id, newLinkList);
   };
 
   const handleRemove = (linkToRemove: string) => {
     if (!user) return;
     const linkList = links.filter((link) => link !== linkToRemove);
-    updateDocument(`users/${user._id}`, { links: linkList });
+    updateLinks(user._id, linkList);
   };
 
   return (
