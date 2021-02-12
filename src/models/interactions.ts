@@ -1,17 +1,7 @@
-import { DocumentReference, ServerTimestamp } from "../services/firebase";
+import { DocumentReference } from "../services/firebase";
+import { InteractionDocument } from "./document-models";
 
-export type NewInteraction = InteractionBase | InteractionType;
-
-interface InteractionBase {
-  whoInteracted: string; // the uid of the user
-  withWhat: string; // the id of the post or comment
-  createdAt: ServerTimestamp;
-}
-
-export default interface InteractionType extends InteractionBase {
+export default interface InteractionType extends InteractionDocument {
   _id: string;
   _ref: DocumentReference;
-  bookmarked?: boolean; // posts only
-  report?: string; // posts or comments
-  vote?: boolean; // posts or comments
 }

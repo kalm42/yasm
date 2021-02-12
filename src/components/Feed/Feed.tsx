@@ -1,9 +1,14 @@
 import * as Sentry from "@sentry/react";
-import { getAnonFeed, getFollowers, getMyFeed } from "../services/firebase";
-import Post from "./Post";
-import { useUser } from "../context";
+import {
+  getFollowers,
+  subscribeToAnonFeed,
+  subscribeToMyFeed,
+} from "../../services/firebase";
+import Post from "../Post";
+import { useUser } from "../../context";
 import { useEffect, useState } from "react";
-import { PostType } from "../models";
+import { PostType } from "../../models";
+import styles from "./Feed.module.css";
 
 const Feed = () => {
   const { user } = useUser();
@@ -11,12 +16,16 @@ const Feed = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
+    let unsubscribe: () => void | undefined;
     const fetchFollows = async () => {
       console.log("running... Feed:fetchFollows");
       setIsLoading(true);
       if (!user) return;
       try {
-        setPosts(await getMyFeed(await getFollowers(user._id)));
+        unsubscribe = await subscribeToMyFeed(
+          await getFollowers(user._id),
+          setPosts
+        );
       } catch (error) {
         console.warn("Feed:fetchFollows", error.message);
       }
@@ -26,7 +35,7 @@ const Feed = () => {
       console.log("Feed:fetchAnon");
       setIsLoading(true);
       try {
-        setPosts(await getAnonFeed());
+        unsubscribe = await subscribeToAnonFeed(setPosts);
       } catch (error) {
         console.warn("Feed:fetchAnon", error.message);
       }
@@ -37,11 +46,17 @@ const Feed = () => {
     } else {
       fetchAnon();
     }
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [user]);
   return (
     <Sentry.ErrorBoundary fallback={FallbackFeed}>
       <section>
-        <h2>the feed</h2>
+        <h1 className={styles.title}>the feed</h1>
         {isLoading ? (
           <p>... loading ...</p>
         ) : (

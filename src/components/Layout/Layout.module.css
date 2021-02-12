@@ -1,0 +1,41 @@
+.root {
+}
+
+.header {
+}
+
+.main {
+  margin: calc(4vmin);
+}
+
+.nav {
+  display: block;
+  position: fixed;
+  bottom: -1px;
+  left: 0;
+  background: var(--background);
+  right: 0;
+  z-index: 10;
+  box-shadow: 0 -1px 1px rgba(0, 0, 0, 0.08), 0 -2px 2px rgba(0, 0, 0, 0.12),
+    0 -4px 4px rgba(0, 0, 0, 0.16), 0 -8px 8px rgba(0, 0, 0, 0.2);
+
+  & ul {
+    display: flex;
+    justify-content: space-around;
+    list-style: none;
+    margin: calc(4vmin);
+    padding: 0;
+
+    & a {
+      text-decoration: none;
+      color: grey;
+    }
+  }
+}
+
+.active {
+  background-image: var(--accent);
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+}

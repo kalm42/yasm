@@ -1,8 +1,12 @@
+import { faCommentDots } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import * as Sentry from "@sentry/react";
 import { useState } from "react";
-import { useUser } from "../context";
-import { CommentType, PostType } from "../models";
-import { writeComment } from "../services/firebase";
+import { useUser } from "../../context";
+import { CommentType, PostType } from "../../models";
+import { writeComment } from "../../services/firebase";
+import Form from "../Form";
+import styles from "./WriteComment.module.css";
 
 interface Props {
   post: PostType;
@@ -19,34 +23,35 @@ const WriteComment = (props: Props) => {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!user) return;
-    if (parentComment) {
+    try {
       writeComment(user, post, comment, parentComment);
-    } else {
-      writeComment(user, post, comment, undefined);
+      setComment("");
+    } catch (error) {
+      console.warn(`WriteComment:handleSubmit => ${error.message}`);
     }
-    setIsCommenting(false);
-    setComment("");
   };
   return (
     <Sentry.ErrorBoundary fallback={FallbackWriteComment}>
       {isCommenting ? (
-        <form onSubmit={handleSubmit}>
-          <label htmlFor="comment">Comment*:</label>
-          <input
-            type="text"
-            name="comment"
-            required
-            value={comment}
-            onChange={handleChange}
-          />
-          <button type="submit">✍️</button>
-        </form>
+        <Form
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          name="comment"
+          placeholder="Write a comment ..."
+          value={comment}
+        />
       ) : (
         <>
-          <button onClick={() => setIsCommenting(true)}>comment</button>
-          <p>
-            ({parentComment ? parentComment.commentCount : post.commentCount})
-          </p>
+          <button
+            onClick={() => setIsCommenting(true)}
+            className={styles.button}
+          >
+            <FontAwesomeIcon
+              icon={faCommentDots}
+              className={styles.commentIcon}
+            />{" "}
+            {parentComment ? parentComment.commentCount : post.commentCount}
+          </button>
         </>
       )}
     </Sentry.ErrorBoundary>

@@ -1,0 +1,24 @@
+.root {
+  display: flex;
+  gap: calc(1vmin);
+  align-items: center;
+}
+
+.vote {
+  border: none;
+  font-size: var(--font-size);
+  background-image: var(--text);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  &.active {
+    background-image: var(--accent);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+.score {
+  margin: 0;
+  padding: 0;
+}

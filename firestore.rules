@@ -1,0 +1,55 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    match /follows/{docId} {
+    	allow read: if request.auth.uid != null;
+      allow write: if request.resource.data.follower == request.auth.uid;
+      allow delete: if resource.data.follower == request.auth.uid;
+    }
+    
+    match /interactions/{docId} {
+    	// Read only your own interactions
+    	allow read: if request.auth.uid != null;
+      allow write: if request.auth.uid == request.resource.data.whoInteracted;
+    }
+    
+    match /notifications/{docId} {
+    	// Read only your own notifications
+    	allow read: if request.auth.uid == resource.data.userId;
+      // Write only your own notifications
+      allow write: if request.auth.uid != null;
+    }
+    
+    match /posts/{docId}/comments/{commendId} {
+    	// Everyone can read
+      allow read: if true;
+      // can only write your own
+      allow write: if request.auth.uid == request.resource.data.authorId;
+    }
+    
+    match /posts/{docId} {
+    	// Everyone can read
+      allow read: if true;
+      // can only write your own
+      allow write: if request.auth.uid == request.resource.data.authorId;
+    }
+    
+    match /reports/{docId} {
+    	// everyone can read
+      allow read: if true;
+      // can only write your own
+      allow write: if request.auth.uid == request.resource.data.reportedBy;
+    }
+    
+    match /users/{docId} {
+    	// everyone can read
+			allow read: if true;    	
+      // can only write your own
+      allow write: if request.auth.uid == docId;
+    }
+  }
+}

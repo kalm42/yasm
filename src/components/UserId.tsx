@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as Sentry from "@sentry/react";
 import { useAuth } from "../context";
-import { firestore, updateDocument } from "../services/firebase";
+import { firestore, updateUser } from "../services/firebase";
 
 interface Props {
   at: string;
@@ -12,13 +12,13 @@ const UserId = (props: Props) => {
   const { at, isMe } = props;
   const { user } = useAuth();
   const [edit, setEdit] = useState(false);
-  const [dirtyId, setDirtyId] = useState(at);
+  const [dirtyAt, setDirtyAt] = useState(at);
   const [isOriginal, setIsOriginal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
     // check if another user has this id
-    setDirtyId(event.target.value);
+    setDirtyAt(event.target.value);
     setLoading(true);
     firestore
       .collection("users")
@@ -33,15 +33,13 @@ const UserId = (props: Props) => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (isOriginal) {
-      updateDocument(`users/${user?._id}`, { id: dirtyId }).then(() =>
-        setEdit(false)
-      );
+    if (isOriginal && user) {
+      updateUser(user._id, user.name, dirtyAt).then(() => setEdit(false));
     }
   };
 
   const handleCancel = () => {
-    setDirtyId(at);
+    setDirtyAt(at);
     setEdit(false);
   };
 
@@ -56,7 +54,7 @@ const UserId = (props: Props) => {
               name="id"
               aria-labelledby="at"
               required
-              value={dirtyId}
+              value={dirtyAt}
               onChange={handleUpdate}
             />
             {loading ? "..." : isOriginal ? "og" : "dup"}

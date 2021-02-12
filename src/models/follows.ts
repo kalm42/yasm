@@ -1,4 +1,4 @@
-import { ServerTimestamp } from "../services/firebase";
+import { ServerTimestamp } from "./document-models";
 
 export default interface FollowType {
   createdAt: ServerTimestamp;

@@ -2,13 +2,28 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 import Feed from "../components/Feed";
 import WritePost from "../components/WritePost";
+import { useUser } from "../context";
+import styles from "./Home.module.css";
 
 const HomePage = () => {
+  const { user } = useUser();
   return (
     <Sentry.ErrorBoundary fallback={FallbackHomePage}>
       <div>
-        <h1>YASM: Yet Another Social Media</h1>
-        <WritePost />
+        {!!user ? (
+          <section className={styles.write}>
+            <WritePost />
+            <img
+              src={user.profileImage}
+              alt={user.at}
+              className={styles.profile}
+            />
+          </section>
+        ) : (
+          <section>
+            <button>login</button>
+          </section>
+        )}
         <Feed />
         <div>
           <h3>Features still in development:</h3>

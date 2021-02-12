@@ -1,42 +1,100 @@
-import React, { useEffect, useState } from "react";
-import styled from "styled-components";
+import React, { useEffect, useRef, useState } from "react";
 import * as Sentry from "@sentry/react";
 import {
+  atIsUnique,
   doesFollow,
   followUser,
-  getUserWithTheirAt,
+  subscribeToMyFeed,
+  subscribeToUserWithTheirAt,
   unfollowUser,
+  updateUser,
 } from "../services/firebase";
-import { UserType } from "../models";
-import Biography from "../components/Biography";
-import UserId from "../components/UserId";
-import Links from "../components/Links";
-import { useParams } from "react-router-dom";
+import { PostType, UserType } from "../models";
+import { useHistory, useParams } from "react-router-dom";
 import { useUser } from "../context";
-
-const Half = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-`;
-const OneFourth = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-`;
+import styles from "./Profile.module.css";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faArrowLeft,
+  faCheckCircle,
+  faEdit,
+  faPlusCircle,
+  faSave,
+} from "@fortawesome/free-solid-svg-icons";
+import Post from "../components/Post";
+import Form from "../components/Form";
 
 const Profile = () => {
   const params = useParams<{ id: string }>();
   const { user } = useUser();
   const [profile, setProfile] = useState<UserType | null>(null);
   const [isMe, setIsMe] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [followsUser, setFollowsUser] = useState(false);
+  const [posts, setPosts] = useState<PostType[]>([]);
+  const [name, setName] = useState("");
+  const [at, setAt] = useState("");
+  const ref = useRef<HTMLInputElement>(null);
+  const history = useHistory();
 
-  const follow = () => {
+  const toggleFollow = () => {
     if (!user || !profile) return;
-    followUser(user, profile).then(() => setFollowsUser(true));
+    if (followsUser) {
+      unfollowUser(user, profile).then(() => setFollowsUser(false));
+    } else {
+      followUser(user, profile).then(() => setFollowsUser(true));
+    }
   };
-  const unfollow = () => {
-    if (!user || !profile) return;
-    unfollowUser(user, profile).then(() => setFollowsUser(false));
+
+  const didChange = () => {
+    const nameDidChange = name !== profile?.name;
+    const atDidChange = at !== profile?.at;
+    return nameDidChange || atDidChange;
+  };
+
+  const toggleEdit = (event?: React.FormEvent<HTMLFormElement>) => {
+    if (event) {
+      event.preventDefault();
+    }
+    if (!user || !profile) {
+      return;
+    }
+    if (isEditing) {
+      if (didChange()) {
+        // save the changes
+        updateUser(user._id, name, at)
+          .then(() => {
+            setIsEditing(false);
+            history.push(`/${at}`);
+          })
+          .catch((error) => {
+            ref.current?.setCustomValidity(error.message);
+          });
+      } else {
+        setIsEditing(false);
+      }
+    } else {
+      setName(profile.name);
+      setAt(profile.at);
+      setIsEditing(true);
+    }
+  };
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setName(event.target.value);
+  };
+  const handleAtChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    // Prevent quick changes from submitting before validation
+    ref.current?.setCustomValidity("Still checking that your at is unique.");
+    const _at = event.target.value;
+    atIsUnique(_at).then((isUnique) => {
+      if (!isUnique) {
+        ref.current?.setCustomValidity("Your at is not unique.");
+      } else {
+        ref.current?.setCustomValidity("");
+      }
+    });
+    setAt(_at);
   };
 
   // is the user me, or do I need to get the user data from external
@@ -49,7 +107,7 @@ const Profile = () => {
       } else {
         setIsMe(false);
         try {
-          setProfile(await getUserWithTheirAt(params.id));
+          subscribeToUserWithTheirAt(setProfile, params.id);
         } catch (error) {
           console.warn("Profile:getProfile", error.message);
         }
@@ -72,35 +130,113 @@ const Profile = () => {
     doIFollow();
   }, [isMe, user, profile]);
 
+  // subscribe to posts from user
+  useEffect(() => {
+    let unsubscribe: () => void | undefined;
+    const sub = () => {
+      if (!profile) return;
+      unsubscribe = subscribeToMyFeed([profile._id], setPosts);
+    };
+    sub();
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [profile]);
+
   return (
     <Sentry.ErrorBoundary fallback={FallbackProfile}>
-      <div>
-        <Half>
-          <div>
-            <h2>Profile Image</h2>
-            {!!profile?.profileImage && (
-              <img src={profile?.profileImage} alt={profile.name} />
+      <section>
+        <header className={styles.header}>
+          <button
+            className={styles["control-button"]}
+            onClick={() => history.goBack()}
+          >
+            <FontAwesomeIcon icon={faArrowLeft} />
+          </button>
+          {isMe && (
+            <button
+              className={styles["control-button"]}
+              onClick={() => toggleEdit()}
+            >
+              {isEditing ? (
+                <FontAwesomeIcon icon={faSave} />
+              ) : (
+                <FontAwesomeIcon icon={faEdit} />
+              )}
+            </button>
+          )}
+        </header>
+        <section>
+          <section className={styles.profile}>
+            <img
+              src={profile?.profileImage}
+              alt={profile?.at}
+              className={styles.image}
+            />
+            {!isMe && (
+              <button className={styles.follow} onClick={toggleFollow}>
+                {followsUser ? (
+                  <FontAwesomeIcon icon={faCheckCircle} size="2x" />
+                ) : (
+                  <FontAwesomeIcon icon={faPlusCircle} size="2x" />
+                )}
+              </button>
             )}
-            {isMe && <button>edit</button>}
-          </div>
-          <UserId at={profile?.at || ""} isMe={isMe} />
-          {user &&
-            profile &&
-            (followsUser ? (
-              <button onClick={unfollow}>unfollow</button>
+            {isEditing ? (
+              <Form
+                handleChange={handleNameChange}
+                handleSubmit={toggleEdit}
+                name="name"
+                placeholder="What's your name?"
+                value={name}
+              />
             ) : (
-              <button onClick={follow}>follow</button>
-            ))}
-        </Half>
-        <OneFourth>
-          <Links links={profile?.links || []} isMe={isMe} />
-          <Biography bio={profile?.bio || ""} isMe={isMe} />
-        </OneFourth>
-        <p>
-          This page will show all of a user's posts, their profile image, bio
-          snipet, and link list.
-        </p>
-      </div>
+              <p className={styles.name}>{profile?.name}</p>
+            )}
+            {isEditing ? (
+              <Form
+                handleChange={handleAtChange}
+                handleSubmit={toggleEdit}
+                name="at"
+                placeholder="What's your at?"
+                value={at}
+                inputRef={ref}
+              />
+            ) : (
+              <p className={styles.at}>@{profile?.at}</p>
+            )}
+          </section>
+          <section className={styles.stats}>
+            <p className={styles.stat} style={{ alignItems: "flex-end" }}>
+              <span className={styles["stat-wrapper"]}>
+                <span className={styles.detail}>{profile?.postCount ?? 0}</span>
+                <span className={styles.title}>Posts</span>
+              </span>
+            </p>
+            <p className={styles.stat}>
+              <span className={styles.detail}>
+                {profile?.followingCount ?? 0}
+              </span>
+              <span className={styles.title}>Following</span>
+            </p>
+            <p className={styles.stat} style={{ alignItems: "flex-start" }}>
+              <span className={styles["stat-wrapper"]}>
+                <span className={styles.detail}>
+                  {profile?.followerCount ?? 0}
+                </span>
+                <span className={styles.title}>Followers</span>
+              </span>
+            </p>
+          </section>
+        </section>
+        <section className={styles.posts}>
+          {posts.map((post) => (
+            <Post key={post._id} {...post} />
+          ))}
+        </section>
+      </section>
     </Sentry.ErrorBoundary>
   );
 };

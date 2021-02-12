@@ -7,12 +7,18 @@ import {
   UserType,
   FollowType,
   InteractionType,
-  NewComment,
-  NewReport,
-  NewInteraction,
   NotificationType,
+  UserCallback,
+  CommentsCallback,
+  PostDocument,
 } from "../models";
-import { NewNotification } from "../models/notifications";
+import {
+  CommentDocument,
+  InteractionDocument,
+  NotificationDocument,
+  ReportDocument,
+  ServerTimestamp,
+} from "../models/document-models";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD98rn8YdEp3956xBCdRCsqBxxF6GyvD38",
@@ -28,20 +34,10 @@ firebase.initializeApp(FIREBASE_CONFIG);
 
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
-export interface ServerTimestamp {
-  // https://firebase.google.com/docs/reference/android/com/google/firebase/Timestamp
-  seconds: number;
-  nanoseconds: number;
-  compareTo: (s: ServerTimestamp) => number;
-  describeContents: () => number;
-  equals: (s: Object) => boolean;
-  getNanoseconds: () => number;
-  getSeconds: () => number;
-  hashCode: () => number;
-  now: () => ServerTimestamp;
-  toDate: () => Date;
-  toString: () => string;
-}
+export const increment = (i: number = 1) =>
+  firebase.firestore.FieldValue.increment(i);
+export const decrement = (i: number = -1) =>
+  firebase.firestore.FieldValue.increment(i);
 export type CollectionReference = firebase.firestore.CollectionReference<firebase.firestore.DocumentData>;
 export type DocumentReference = firebase.firestore.DocumentSnapshot<firebase.firestore.DocumentData>;
 type QuerySnapshot = firebase.firestore.QuerySnapshot<firebase.firestore.DocumentData>;
@@ -51,15 +47,6 @@ type QuerySnapshot = firebase.firestore.QuerySnapshot<firebase.firestore.Documen
  */
 export function getServerTimestamp() {
   return (firebase.firestore.FieldValue.serverTimestamp() as unknown) as ServerTimestamp;
-}
-
-/**
- * Updates any document with any value
- * @param path Document reference path
- * @param value New document values
- */
-export function updateDocument(path: string, value: object) {
-  return firestore.doc(path).set(value, { merge: true });
 }
 
 /**
@@ -82,6 +69,21 @@ export function getUserWithId(id: string): Promise<UserType> {
 }
 
 /**
+ * Subscribes to the user document updating the state in real time.
+ * @param setState Callback function to update component state
+ * @param id the user _id
+ */
+export function subscribeToUserWithId(setState: UserCallback, id: string) {
+  firestore.doc(`users/${id}`).onSnapshot((snapshot) => {
+    if (!snapshot.exists) throw new Error("No user found");
+    const user = snapshot.data() as UserType;
+    user._id = snapshot.id;
+    user._ref = snapshot;
+    setState(user);
+  });
+}
+
+/**
  * Sets a relationship between two users
  * @param follower User that is following
  * @param followed User that is being followed
@@ -90,6 +92,13 @@ export function followUser(follower: UserType, followed: UserType) {
   const path = `follows/${follower._id}_${followed._id}`;
 
   writeNotification(followed._id, `@${follower.at} has followed you.`);
+
+  // update follower's following count
+  firestore
+    .doc(`users/${follower._id}`)
+    .update({ followingCount: increment() });
+  // update followed's follower count
+  firestore.doc(`users/${followed._id}`).update({ followerCount: increment() });
 
   return firestore.doc(path).set({
     createdAt: getServerTimestamp(),
@@ -104,6 +113,13 @@ export function followUser(follower: UserType, followed: UserType) {
  * @param followed User that is being un-followed
  */
 export function unfollowUser(follower: UserType, followed: UserType) {
+  // update follower's following count
+  firestore
+    .doc(`users/${follower._id}`)
+    .update({ followingCount: decrement() });
+  // update followed's follower count
+  firestore.doc(`users/${followed._id}`).update({ followerCount: decrement() });
+
   const path = `follows/${follower._id}_${followed._id}`;
   writeNotification(followed._id, `@${follower.at} has stoped following you.`);
   return firestore.doc(path).delete();
@@ -135,7 +151,8 @@ export function writeComment(
   comment: string,
   parentComment?: CommentType
 ) {
-  const newComment: NewComment = {
+  // Assemble comment document
+  const newComment: CommentDocument = {
     authorId: user._id,
     commentCount: 0,
     createdAt: getServerTimestamp(),
@@ -143,6 +160,8 @@ export function writeComment(
     score: 0,
     text: comment,
   };
+
+  // conditionally add parent comment info
   if (parentComment) {
     newComment.parentId = parentComment._id;
     newComment.level = parentComment.level + 1;
@@ -154,13 +173,14 @@ export function writeComment(
     `@${user.at} has commented on your post.`,
     post
   );
+
+  // add document to db
   firestore.doc(`posts/${post._id}`).collection("comments").add(newComment);
+
   // update post comment count
-  post._ref.ref.set(
-    { commentCount: (post.commentCount || 0) + 1 },
-    { merge: true }
-  );
-  // update parent comment comment count
+  post._ref.ref.update({ commentCount: increment() });
+
+  // conditionally update parent comment comment count and notify author
   if (parentComment) {
     // notify parent comment author of reply
     writeNotification(
@@ -168,19 +188,8 @@ export function writeComment(
       `@${user.at} has replied to your comment.`,
       parentComment
     );
-    parentComment._ref.ref.set(
-      { commentCount: (parentComment.commentCount || 0) + 1 },
-      { merge: true }
-    );
+    parentComment._ref.ref.update({ commentCount: increment() });
   }
-}
-
-/**
- * Returns the collection reference
- * @param path Path to a collection
- */
-export function getCollection(path: string) {
-  return firestore.collection(path);
 }
 
 /**
@@ -214,6 +223,21 @@ function aggregateComments(query: QuerySnapshot) {
   return commentCollection;
 }
 
+export function subscribeToComments(
+  postId: string,
+  level: number = 0,
+  setState: CommentsCallback
+) {
+  return firestore
+    .collection(`posts/${postId}/comments`)
+    .where("level", "==", level)
+    .orderBy("createdAt", "desc")
+    .limit(10)
+    .onSnapshot((querySnapshot) => {
+      setState(aggregateComments(querySnapshot));
+    });
+}
+
 /**
  * Returns the latest 25 top level comments on a post.
  * @param postId The document id of the post
@@ -227,6 +251,23 @@ export function getCommentsForPost(postId: string, level: number = 0) {
     .limit(25)
     .get()
     .then(aggregateComments);
+}
+
+export function subscribeToReplies(
+  setState: (T: CommentType[]) => void,
+  postId: string,
+  commentId: string,
+  level: number = 1
+) {
+  return firestore
+    .collection(`/posts/${postId}/comments`)
+    .where("level", "==", level)
+    .where("parentId", "==", commentId)
+    .orderBy("createdAt", "desc")
+    .limit(10)
+    .onSnapshot((querySnapshot) => {
+      setState(aggregateComments(querySnapshot));
+    });
 }
 
 /**
@@ -288,15 +329,20 @@ function aggregatePosts(query: QuerySnapshot) {
 /**
  * Returns an array of posts from the users that the current user is following.
  * @param followedUserIds Array of user ids the current user follows
+ * @param setState The set state functiont to update the component
  */
-export function getMyFeed(followedUserIds: string[]) {
+export function subscribeToMyFeed(
+  followedUserIds: string[],
+  setState: (posts: PostType[]) => void
+) {
   return firestore
     .collection("posts")
     .where("authorId", "in", followedUserIds)
     .orderBy("createdAt", "desc")
     .limit(25)
-    .get()
-    .then(aggregatePosts);
+    .onSnapshot((querySnapshot) => {
+      setState(aggregatePosts(querySnapshot));
+    });
 }
 
 /**
@@ -355,27 +401,99 @@ export function getUserWithTheirAt(at: string) {
     });
 }
 
+export function subscribeToUserWithTheirAt(
+  setState: (T: UserType) => void,
+  at: string
+) {
+  firestore
+    .collection("users")
+    .where("at", "==", at)
+    .limit(1)
+    .onSnapshot((querySnapshot) => {
+      let user: UserType | undefined;
+      querySnapshot.forEach((doc) => {
+        user = doc.data() as UserType;
+        user._id = doc.id;
+        user._ref = doc;
+      });
+
+      if (!user) throw new Error(`No user found with the at ${at}`);
+
+      setState(user);
+    });
+}
+
 /**
  * Reduces the score of a post or a comment by 1
  * @param doc Either a post or a comment
  * @param user The current user
  */
 export function decrementScore(doc: PostType | CommentType, user: UserType) {
-  const updateScore = doc._ref.ref.set(
-    { score: doc.score - 1 },
-    { merge: true }
-  );
-  const interaction: NewInteraction = {
+  // Decrement the post or comment score
+  const decrementScore = doc._ref.ref.update({ score: decrement() });
+
+  // decrement author's score
+  const decrementAuthor = firestore
+    .doc(`users/${doc.authorId}`)
+    .update({ score: decrement() });
+
+  // record the interaction
+  const interaction: InteractionDocument = {
     vote: false,
     whoInteracted: user._id,
     withWhat: doc._id,
     createdAt: getServerTimestamp(),
   };
+
   const recordInteraction = firestore
     .doc(`interactions/${user._id}_${doc._id}`)
     .set(interaction, { merge: true });
 
-  return Promise.all([updateScore, recordInteraction]);
+  return Promise.all([decrementScore, decrementAuthor, recordInteraction]);
+}
+
+/**
+ * Reduces the score of a post or a comment by 1
+ * @param doc Either a post or a comment
+ * @param user The current user
+ */
+export function undecrementScore(doc: PostType | CommentType, user: UserType) {
+  // incremeny post or comment score
+  const updateScore = doc._ref.ref.update({ score: increment() });
+
+  // increment author's score
+  const updateAuthor = firestore
+    .doc(`users/${doc.authorId}`)
+    .update({ score: increment() });
+
+  // delete vote
+  const recordInteraction = firestore
+    .doc(`interactions/${user._id}_${doc._id}`)
+    .update({
+      vote: firebase.firestore.FieldValue.delete(),
+    });
+
+  return Promise.all([updateScore, updateAuthor, recordInteraction]);
+}
+
+export function switchDownVoteToUpVote(
+  doc: PostType | CommentType,
+  user: UserType
+) {
+  // update document's score
+  const updateScore = doc._ref.ref.update({ score: increment(2) });
+
+  // update author's score
+  const updateAuthor = firestore
+    .doc(`users/${doc.authorId}`)
+    .update({ score: increment(2) });
+
+  // update interaction
+  const recordInteraction = firestore
+    .doc(`interactions/${user._id}_${doc._id}`)
+    .update({ vote: true });
+
+  return Promise.all([updateScore, updateAuthor, recordInteraction]);
 }
 
 /**
@@ -384,11 +502,16 @@ export function decrementScore(doc: PostType | CommentType, user: UserType) {
  * @param user The current user
  */
 export function incrementScore(doc: PostType | CommentType, user: UserType) {
-  const updateScore = doc._ref.ref.set(
-    { score: doc.score + 1 },
-    { merge: true }
-  );
-  const interaction: NewInteraction = {
+  // increment post or comment score
+  const updateScore = doc._ref.ref.update({ score: increment() });
+
+  // increment author's score
+  const updateAuthor = firestore
+    .doc(`users/${doc.authorId}`)
+    .update({ score: increment() });
+
+  // record interaction
+  const interaction: InteractionDocument = {
     vote: true,
     whoInteracted: user._id,
     withWhat: doc._id,
@@ -397,27 +520,70 @@ export function incrementScore(doc: PostType | CommentType, user: UserType) {
   const recordInteraction = firestore
     .doc(`interactions/${user._id}_${doc._id}`)
     .set(interaction, { merge: true });
-  return Promise.all([updateScore, recordInteraction]);
+  return Promise.all([updateScore, updateAuthor, recordInteraction]);
+}
+
+/**
+ * Increases the score of a post or a comment by 1
+ * @param doc Either a post or a comment
+ * @param user The current user
+ */
+export function unincrementScore(doc: PostType | CommentType, user: UserType) {
+  // decrement the post or comment score
+  const updateScore = doc._ref.ref.update({ score: decrement() });
+
+  // decrement the author's score
+  const updateAuthor = firestore
+    .doc(`users/${doc.authorId}`)
+    .update({ score: decrement() });
+
+  // Update interaction
+  const recordInteraction = firestore
+    .doc(`interactions/${user._id}_${doc._id}`)
+    .update({ vote: firebase.firestore.FieldValue.delete() });
+
+  return Promise.all([updateScore, updateAuthor, recordInteraction]);
+}
+
+export function switchUpVoteToDownVote(
+  doc: PostType | CommentType,
+  user: UserType
+) {
+  // update document's score
+  const updateScore = doc._ref.ref.update({ score: decrement(2) });
+
+  // update author's score
+  const updateAuthor = firestore
+    .doc(`users/${doc.authorId}`)
+    .update({ score: decrement(2) });
+
+  // update interaction
+  const recordInteraction = firestore
+    .doc(`interactions/${user._id}_${doc._id}`)
+    .update({ vote: false });
+
+  return Promise.all([updateScore, updateAuthor, recordInteraction]);
 }
 
 /**
  * Returns any interactions the current user has had with the comment or post.
  * @param doc Either post or comment
  * @param user Current user
+ * @param setState The set state functiont to update the component
  */
-export function getInteractionWith(
+export function subscribeToInteractionWith(
   doc: PostType | CommentType,
-  user: UserType
+  user: UserType,
+  setState: (interaction: InteractionType) => void
 ) {
   return firestore
     .doc(`interactions/${user._id}_${doc._id}`)
-    .get()
-    .then((d) => {
-      const interaction = d.data() as InteractionType;
+    .onSnapshot((docSnap) => {
+      const interaction = docSnap.data() as InteractionType;
       if (!interaction) return null;
-      interaction._id = d.id;
-      interaction._ref = d;
-      return interaction;
+      interaction._id = docSnap.id;
+      interaction._ref = docSnap;
+      setState(interaction);
     });
 }
 
@@ -427,7 +593,7 @@ export function getInteractionWith(
  * @param user current user
  */
 export function bookmarkPost(post: PostType, user: UserType) {
-  const interaction: NewInteraction = {
+  const interaction: InteractionDocument = {
     whoInteracted: user._id,
     withWhat: post._id,
     createdAt: getServerTimestamp(),
@@ -451,7 +617,7 @@ export function fileReport(
   text: string
 ) {
   // add the report
-  const report: NewReport = {
+  const report: ReportDocument = {
     reported: doc._id,
     reportedBy: user._id,
     text: text,
@@ -469,7 +635,7 @@ export function fileReport(
     });
 
   // add the interaction
-  const interaction: NewInteraction = {
+  const interaction: InteractionDocument = {
     whoInteracted: user._id,
     withWhat: doc._id,
     report: text,
@@ -491,14 +657,16 @@ export function fileReport(
 
 /**
  * Returns a feed not filtered by followers
+ * @param setState The set state functiont to update the component
  */
-export function getAnonFeed() {
+export function subscribeToAnonFeed(setState: (posts: PostType[]) => void) {
   return firestore
     .collection("posts")
     .orderBy("createdAt", "desc")
     .limit(25)
-    .get()
-    .then(aggregatePosts);
+    .onSnapshot((querSnapshot) => {
+      setState(aggregatePosts(querSnapshot));
+    });
 }
 
 /**
@@ -542,7 +710,7 @@ export function writeNotification(
   text: string,
   doc?: PostType | CommentType
 ) {
-  const notification: NewNotification = {
+  const notification: NotificationDocument = {
     createdAt: getServerTimestamp(),
     hasRead: false,
     message: text,
@@ -560,4 +728,62 @@ export function updateNotifications(notifications: NotificationType[]) {
     batch.update(notification._ref.ref, { hasRead: true });
   });
   batch.commit();
+}
+
+export function updateUser(
+  userId: string,
+  name: string,
+  at: string
+): Promise<void> {
+  // make sure no other user has the at
+  return new Promise((resolve, reject) => {
+    atIsUnique(at).then((isUnique) => {
+      if (!isUnique) reject({ message: "Your at is not unique" });
+      firestore
+        .doc(`users/${userId}`)
+        .update({ name, at })
+        .then(() => resolve())
+        .catch((error) => reject(error));
+    });
+  });
+}
+
+export function updateBio(userId: string, bio: string) {
+  return firestore.doc(`users/${userId}`).update({ bio });
+}
+
+export function updateLinks(userId: string, links: string[]) {
+  return firestore.doc(`users/${userId}`).update({ links });
+}
+
+export function atIsUnique(at: string) {
+  return firestore
+    .collection("users")
+    .where("at", "==", at)
+    .limit(1)
+    .get()
+    .then((doc) => {
+      let exists = false;
+      doc.forEach((d) => {
+        if (!exists) exists = true;
+      });
+      return !exists;
+    });
+}
+
+export function createPost(authorId: string, text: string) {
+  // assemble post
+  const post: PostDocument = {
+    authorId,
+    commentCount: 0,
+    createdAt: getServerTimestamp(),
+    score: 0,
+    text,
+  };
+
+  // record post
+  firestore.collection("posts").add(post);
+
+  // update author's post count
+  return firestore.doc(`users/${authorId}`).update({ postCount: increment() });
 }

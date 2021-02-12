@@ -1,7 +1,7 @@
 import { useState } from "react";
 import * as Sentry from "@sentry/react";
 import { useAuth } from "../context";
-import { updateDocument } from "../services/firebase";
+import { updateBio } from "../services/firebase";
 
 interface Props {
   bio: string;
@@ -20,9 +20,8 @@ const Biography = (props: Props) => {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    updateDocument(`users/${user?._id}`, { bio: dirtyBio }).then(() =>
-      setEdit(false)
-    );
+    if (!user) return;
+    updateBio(user._id, dirtyBio).then(() => setEdit(false));
   };
 
   const handleCancel = () => {

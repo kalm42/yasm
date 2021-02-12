@@ -1,0 +1,30 @@
+.header {
+  display: grid;
+  grid-template-columns: calc(8vmin) calc(8vmin) 1fr;
+  gap: calc(4vmin);
+  padding-bottom: calc(4vmin);
+  align-items: center;
+
+  & p {
+    font-size: calc(3.4vmin);
+    margin: calc(1vmin) 0;
+  }
+}
+
+.author {
+}
+
+.name {
+  padding-bottom: calc(1vmin);
+}
+
+.time {
+  color: var(--text-dark);
+}
+
+.button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: calc(4.25vmin);
+}

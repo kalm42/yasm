@@ -1,16 +1,9 @@
-import { DocumentReference, ServerTimestamp } from "../services/firebase";
+import { DocumentReference } from "../services/firebase";
+import { CommentDocument } from "./document-models";
 
-export interface NewComment {
-  authorId: string;
-  createdAt: ServerTimestamp;
-  commentCount: number;
-  score: number;
-  level: number;
-  parentId?: string;
-  text: string;
-}
+export type CommentsCallback = (comments: CommentType[]) => void;
 
-export default interface CommentType extends NewComment {
+export default interface CommentType extends CommentDocument {
   _id: string;
   _ref: DocumentReference;
 }

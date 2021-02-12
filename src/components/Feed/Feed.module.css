@@ -1,0 +1,6 @@
+.title {
+  background-image: var(--alt-accent);
+  background-clip: text;
+  text-fill-color: transparent;
+  -webkit-text-fill-color: transparent;
+}

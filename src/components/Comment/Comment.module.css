@@ -1,0 +1,16 @@
+.root {
+  border-left-color: var(--text-dark);
+  padding: calc(2vmin) 0 calc(2vmin) calc(4vmin);
+  border-left-width: calc(1vmin);
+  border-left-style: solid;
+  margin: calc(4vmin) 0;
+}
+
+.next {
+  background: none;
+  border: none;
+  color: var(--text-dark);
+  font-size: calc(3.23vmin);
+  font-weight: bold;
+  padding-top: calc(2vmin);
+}
