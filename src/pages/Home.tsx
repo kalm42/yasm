@@ -2,11 +2,12 @@ import React from "react";
 import * as Sentry from "@sentry/react";
 import Feed from "../components/Feed";
 import WritePost from "../components/WritePost";
-import { useUser } from "../context";
+import { useAuth, useUser } from "../context";
 import styles from "./Home.module.css";
 
 const HomePage = () => {
   const { user } = useUser();
+  const { login } = useAuth();
   return (
     <Sentry.ErrorBoundary fallback={FallbackHomePage}>
       <div>
@@ -21,7 +22,7 @@ const HomePage = () => {
           </section>
         ) : (
           <section>
-            <button>login</button>
+            <button onClick={() => login()}>login</button>
           </section>
         )}
         <Feed />

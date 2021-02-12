@@ -787,3 +787,22 @@ export function createPost(authorId: string, text: string) {
   // update author's post count
   return firestore.doc(`users/${authorId}`).update({ postCount: increment() });
 }
+
+export function loginWithGoogle() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider);
+}
+
+export function signOut() {
+  auth.signOut();
+}
+
+export function subscribeToAuth(setState: (T: UserType | null) => void) {
+  firebase.auth().onAuthStateChanged((googleUser) => {
+    if (googleUser) {
+      subscribeToUserWithId(setState, googleUser.uid);
+    } else {
+      setState(null);
+    }
+  });
+}

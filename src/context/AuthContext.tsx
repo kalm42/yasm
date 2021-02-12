@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import firebase from "firebase/app";
-import { auth, getUserWithId } from "../services/firebase";
+import {
+  auth,
+  getUserWithId,
+  loginWithGoogle,
+  signOut,
+  subscribeToAuth,
+} from "../services/firebase";
 import { UserType } from "../models";
 
 interface AuthContextInterface {
@@ -19,27 +25,12 @@ const AuthProvider = (props: Props) => {
   const [user, setUser] = useState<UserType | null>(null);
 
   useEffect(() => {
-    firebase.auth().onAuthStateChanged((googleUser) => {
-      if (googleUser) {
-        getUserWithId(googleUser.uid).then((fireUser) => {
-          setUser(fireUser as UserType);
-        });
-      } else {
-        setUser(null);
-      }
-    });
+    subscribeToAuth(setUser);
   }, []);
 
-  const login = () => {
-    const provider = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(provider);
-  };
+  const login = () => loginWithGoogle();
 
-  const logout = () => {
-    if (auth.currentUser) {
-      auth.signOut();
-    }
-  };
+  const logout = () => signOut();
 
   return (
     <AuthContext.Provider
