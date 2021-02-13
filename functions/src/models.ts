@@ -4,7 +4,6 @@ export interface ServerTimestamp {
   nanoseconds: number;
   compareTo: (s: ServerTimestamp) => number;
   describeContents: () => number;
-  equals: (s: Object) => boolean;
   getNanoseconds: () => number;
   getSeconds: () => number;
   hashCode: () => number;
