@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
 import { PostType } from "../models";
-import { getMyBookmarks } from "../services/firebase";
 import Post from "../components/Post";
+import { getMyBookmarks } from "../services";
 
 const Bookmarks = () => {
   const { user } = useUser();

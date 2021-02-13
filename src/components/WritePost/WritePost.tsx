@@ -2,9 +2,9 @@ import { FormEvent, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowCircleUp } from "@fortawesome/free-solid-svg-icons";
-import { createPost } from "../../services/firebase";
 import { useUser } from "../../context";
 import styles from "./WritePost.module.css";
+import { createPost } from "../../services";
 
 const WritePost = () => {
   const [post, setPost] = useState("");

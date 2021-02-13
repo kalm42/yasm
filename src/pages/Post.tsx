@@ -5,9 +5,9 @@ import moment from "moment";
 import Comments from "../components/Comments";
 import { useUser } from "../context";
 import { PostType, UserType } from "../models";
-import { getPostByDocId, getUserWithId } from "../services/firebase";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { getPostByDocId, getUserWithId } from "../services";
 
 const Post = () => {
   const params = useParams<{ id: string }>();

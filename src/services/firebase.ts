@@ -6,15 +6,14 @@ import {
   PostType,
   UserType,
   InteractionType,
-  NotificationType,
   UserCallback,
 } from "../models";
 import {
   InteractionDocument,
-  NotificationDocument,
   ReportDocument,
   ServerTimestamp,
 } from "../models/document-models";
+import { writeNotification } from ".";
 
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyD98rn8YdEp3956xBCdRCsqBxxF6GyvD38",

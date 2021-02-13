@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { useUser } from "../context";
 import { NotificationType } from "../models";
-import { getMyNotifications, updateNotifications } from "../services/firebase";
+import { getMyNotifications, updateNotifications } from "../services";
 
 const Notifications = () => {
   const { user } = useUser();

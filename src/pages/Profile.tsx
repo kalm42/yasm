@@ -2,11 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as Sentry from "@sentry/react";
 import {
   atIsUnique,
-  doesFollow,
-  followUser,
-  subscribeToMyFeed,
   subscribeToUserWithTheirAt,
-  unfollowUser,
   updateUser,
 } from "../services/firebase";
 import { PostType, UserType } from "../models";
@@ -23,6 +19,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Post from "../components/Post";
 import Form from "../components/Form";
+import {
+  doesFollow,
+  followUser,
+  subscribeToMyFeed,
+  unfollowUser,
+} from "../services";
 
 const Profile = () => {
   const params = useParams<{ id: string }>();

@@ -3,10 +3,10 @@ import moment from "moment";
 import * as Sentry from "@sentry/react";
 import { useUser } from "../../context";
 import { CommentType, PostType, UserType } from "../../models";
-import { getUserWithId, subscribeToReplies } from "../../services/firebase";
 import styles from "./Comment.module.css";
 import Header from "../Header";
 import Footer from "../Footer";
+import { getUserWithId, subscribeToReplies } from "../../services";
 
 interface Props {
   comment: CommentType;

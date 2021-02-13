@@ -2,16 +2,16 @@ import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { useUser } from "../../context";
 import { CommentType, InteractionType, PostType } from "../../models";
+import { subscribeToInteractionWith } from "../../services/firebase";
+import styles from "./Score.module.css";
 import {
   decrementScore,
-  undecrementScore,
   incrementScore,
-  unincrementScore,
   switchDownVoteToUpVote,
   switchUpVoteToDownVote,
-  subscribeToInteractionWith,
-} from "../../services/firebase";
-import styles from "./Score.module.css";
+  undecrementScore,
+  unincrementScore,
+} from "../../services";
 
 interface Props {
   document: CommentType | PostType;

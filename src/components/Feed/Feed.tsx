@@ -1,14 +1,14 @@
 import * as Sentry from "@sentry/react";
-import {
-  getFollowers,
-  subscribeToAnonFeed,
-  subscribeToMyFeed,
-} from "../../services/firebase";
 import Post from "../Post";
 import { useUser } from "../../context";
 import { useEffect, useState } from "react";
 import { PostType } from "../../models";
 import styles from "./Feed.module.css";
+import {
+  getFollowers,
+  subscribeToAnonFeed,
+  subscribeToMyFeed,
+} from "../../services";
 
 const Feed = () => {
   const { user } = useUser();

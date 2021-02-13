@@ -1,4 +1,3 @@
-import firebase from "firebase/app";
 import { firestore, getServerTimestamp, increment, writeNotification } from ".";
 import { QuerySnapshot } from "./firebase";
 import {

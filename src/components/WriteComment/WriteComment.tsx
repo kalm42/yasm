@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/react";
 import { useState } from "react";
 import { useUser } from "../../context";
 import { CommentType, PostType } from "../../models";
-import { writeComment } from "../../services/firebase";
+import { writeComment } from "../../services";
 import Form from "../Form";
 import styles from "./WriteComment.module.css";
 

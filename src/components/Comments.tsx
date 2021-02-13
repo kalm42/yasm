@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
 import { CommentType, PostType } from "../models";
-import { subscribeToComments } from "../services/firebase";
 import Comment from "./Comment";
+import { subscribeToComments } from "../services";
 
 interface Props {
   post: PostType;

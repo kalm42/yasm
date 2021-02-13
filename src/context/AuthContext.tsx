@@ -1,10 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import {
-  loginWithGoogle,
-  signOut,
-  subscribeToAuth,
-} from "../services/firebase";
 import { UserType } from "../models";
+import { loginWithGoogle, signOut, subscribeToAuth } from "../services";
 
 interface AuthContextInterface {
   login: Function;
