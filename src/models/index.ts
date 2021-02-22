@@ -12,8 +12,10 @@ import {
   InteractionDocument,
   PostDocument,
 } from "./document-models";
+import { AlertType } from "./alert";
 
 export type {
+  AlertType,
   CommentDocument,
   CommentType,
   FollowType,

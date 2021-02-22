@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/react";
 import { NavLink } from "react-router-dom";
 import { useUser } from "../../context";
 import styles from "./Layout.module.css";
+import Alerts from "../Alerts";
 
 interface Props {
   children: ReactNode;
@@ -58,6 +59,7 @@ const Layout = (props: Props) => {
           </nav>
         </header>
         <main className={styles.main}>{children}</main>
+        <Alerts />
       </div>
     </Sentry.ErrorBoundary>
   );

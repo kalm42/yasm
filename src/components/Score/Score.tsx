@@ -12,6 +12,7 @@ import {
   undecrementScore,
   unincrementScore,
 } from "../../services";
+import { useAlert } from "../../context/AlertContext";
 
 interface Props {
   document: CommentType | PostType;
@@ -21,6 +22,7 @@ const Score = (props: Props) => {
   const { document } = props;
   const [interaction, setInteraction] = useState<InteractionType | null>(null);
   const { user } = useUser();
+  const { addAlert } = useAlert();
   const didUpVote = interaction?.vote !== undefined && interaction.vote;
   const didDownVote = interaction?.vote !== undefined && !interaction.vote;
 
@@ -29,16 +31,52 @@ const Score = (props: Props) => {
     switch (interaction?.vote) {
       case true:
         // did up vote
-        unincrementScore(document, user);
+        unincrementScore(document, user)
+          .then(() => {
+            addAlert({
+              id: Symbol(`upvoted-${document._id}`),
+              message: `Successfully removed your vote.`,
+            });
+          })
+          .catch((error) => {
+            addAlert({
+              id: Symbol(`upvote-failed`),
+              message: `Failed to remove your vote. Error: ${error.message}`,
+            });
+          });
         break;
       case false:
         // did down vote
-        switchDownVoteToUpVote(document, user);
+        switchDownVoteToUpVote(document, user)
+          .then(() => {
+            addAlert({
+              id: Symbol(`upvoted-${document._id}`),
+              message: `Successfully switched your down vote to an up vote.`,
+            });
+          })
+          .catch((error) => {
+            addAlert({
+              id: Symbol(`upvote-failed`),
+              message: `Failed to switch your vote from down to up. Error: ${error.message}`,
+            });
+          });
         break;
 
       default:
         // has not voted
-        incrementScore(document, user);
+        incrementScore(document, user)
+          .then(() => {
+            addAlert({
+              id: Symbol(`upvoted-${document._id}`),
+              message: `Successfully up voted!`,
+            });
+          })
+          .catch((error) => {
+            addAlert({
+              id: Symbol(`upvote-failed`),
+              message: `Failed to up vote. Error: ${error.message}`,
+            });
+          });
         break;
     }
   };
@@ -47,16 +85,52 @@ const Score = (props: Props) => {
     switch (interaction?.vote) {
       case true:
         // already up voted
-        switchUpVoteToDownVote(document, user);
+        switchUpVoteToDownVote(document, user)
+          .then(() => {
+            addAlert({
+              id: Symbol(`upvoted-${document._id}`),
+              message: `Successfully changed up vote to down vote!`,
+            });
+          })
+          .catch((error) => {
+            addAlert({
+              id: Symbol(`upvote-failed`),
+              message: `Failed to change the vote. Error: ${error.message}`,
+            });
+          });
         break;
       case false:
         // already down voted
-        undecrementScore(document, user);
+        undecrementScore(document, user)
+          .then(() => {
+            addAlert({
+              id: Symbol(`upvoted-${document._id}`),
+              message: `Successfully removed your vote!`,
+            });
+          })
+          .catch((error) => {
+            addAlert({
+              id: Symbol(`upvote-failed`),
+              message: `Failed to remove your vote. Error: ${error.message}`,
+            });
+          });
         break;
 
       default:
         // has not voted
-        decrementScore(document, user);
+        decrementScore(document, user)
+          .then(() => {
+            addAlert({
+              id: Symbol(`upvoted-${document._id}`),
+              message: `Successfully down voted!`,
+            });
+          })
+          .catch((error) => {
+            addAlert({
+              id: Symbol(`upvote-failed`),
+              message: `Failed to down vote. Error: ${error.message}`,
+            });
+          });
         break;
     }
   };

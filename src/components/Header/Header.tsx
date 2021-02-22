@@ -25,10 +25,10 @@ const Header = (props: Props) => {
           <FontAwesomeIcon icon={faArrowLeft} />
         </button>
       )}
-      <Link to={`/${author?.at}`} className={styles.link}>
+      <Link to={`/${author?._id}`} className={styles.link}>
         <ProfileImage url={author?.profileImage} userAt={author?.at} />
       </Link>
-      <Link to={`/${author?.at}`} className={styles.link}>
+      <Link to={`/${author?._id}`} className={styles.link}>
         <section>
           <p className={styles.author}>
             {author?.name} @{author?.at}
@@ -39,14 +39,14 @@ const Header = (props: Props) => {
       <button className={styles.options}>
         <FontAwesomeIcon icon={faEllipsisH} className={styles.icon} />
         {/* 
-              // TODO: shove these in the options
-              <li className={styles.tool}>
-                <Bookmark post={props} interaction={interactions} />
-              </li>
-              <li className={styles.tool}>
-                <Report document={props} />
-              </li> 
-            */}
+          // TODO: shove these in the options
+          <li className={styles.tool}>
+            <Bookmark post={props} interaction={interactions} />
+          </li>
+          <li className={styles.tool}>
+            <Report document={props} />
+          </li> 
+        */}
       </button>
     </header>
   );

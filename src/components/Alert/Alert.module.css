@@ -1,0 +1,36 @@
+.root {
+  background: var(--light-background);
+  border-color: var(--accent-start);
+  border-radius: calc(4vmin);
+  border-style: solid;
+  border-width: calc(0.5vmin);
+  display: flex;
+  font-size: calc(2.8vmin);
+  left: calc(20.5vw);
+  padding: calc(4vmin);
+  position: fixed;
+  top: calc(4vmin);
+  width: calc(50vw);
+  gap: calc(4vmin);
+}
+
+.message {
+  flex: 1;
+}
+
+.deets {
+  display: flex;
+  flex-direction: column;
+  gap: calc(2vmin);
+}
+
+.length {
+  margin: 0;
+  padding: 0;
+}
+
+.action {
+  background: none;
+  border: none;
+  color: var(--accent-start);
+}

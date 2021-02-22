@@ -1,10 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as Sentry from "@sentry/react";
-import {
-  atIsUnique,
-  subscribeToUserWithTheirAt,
-  updateUser,
-} from "../services/firebase";
+import { atIsUnique, updateUser } from "../services/firebase";
 import { PostType, UserType } from "../models";
 import { useHistory, useParams } from "react-router-dom";
 import { useUser } from "../context";
@@ -23,6 +19,7 @@ import {
   doesFollow,
   followUser,
   subscribeToMyFeed,
+  subscribeToUserWithId,
   unfollowUser,
 } from "../services";
 
@@ -103,13 +100,13 @@ const Profile = () => {
   useEffect(() => {
     const getProfile = async () => {
       console.log("Profile:getProfile");
-      if (user?.at === params.id) {
+      if (user?._id === params.id) {
         setIsMe(true);
         setProfile(user);
       } else {
         setIsMe(false);
         try {
-          subscribeToUserWithTheirAt(setProfile, params.id);
+          subscribeToUserWithId(setProfile, params.id);
         } catch (error) {
           console.warn("Profile:getProfile", error.message);
         }
